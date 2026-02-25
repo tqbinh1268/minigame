@@ -1,0 +1,202 @@
+<!-- /Users/ongmuoigiao/Library/CloudStorage/GoogleDrive-ongmuoigiao@gmail.com/My Drive/Code/MiniGame/index.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kho Game Thuật Toán</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --matrix: #00ff41;
+            --cyan: #06b6d4;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 90%;
+            max-width: 1200px;
+            padding-bottom: 60px;
+        }
+
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .tag.logic { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .tag.matrix { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .tag.edu { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .tag.algo { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+
+        h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
+
+        .desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            text-align: center;
+            background-color: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+
+        /* Style riêng cho nút Matrix */
+        .btn.matrix-style {
+            background-color: transparent;
+            border: 1px solid var(--matrix);
+            color: var(--matrix);
+        }
+        .btn.matrix-style:hover {
+            background-color: var(--matrix);
+            color: #000;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Algorithm Game Hub</h1>
+        <p class="subtitle">Tuyển tập các trò chơi rèn luyện tư duy thuật toán và sắp xếp</p>
+    </header>
+
+    <div class="container">
+        <!-- Game 1: Sắp xếp mảng -->
+        <div class="game-card">
+            <div>
+                <span class="tag logic">Logic</span>
+                <h2>Sort Logic Pro</h2>
+                <p class="desc">
+                    Trò chơi kéo thả tối giản. Nhiệm vụ của bạn là sắp xếp các con số theo thứ tự tăng dần trong thời gian giới hạn. Càng lên cao, độ khó càng tăng.
+                </p>
+            </div>
+            <a href="SapXepMang.html" class="btn">Chơi Ngay</a>
+        </div>
+
+        <!-- Game 2: Bubble Sort Matrix -->
+        <div class="game-card" style="border-top: 3px solid var(--matrix);">
+            <div>
+                <span class="tag matrix">Matrix Protocol</span>
+                <h2 style="font-family: 'Courier New', monospace;">Matrix Sort v1</h2>
+                <p class="desc">
+                    Mô phỏng thuật toán Bubble Sort với giao diện Hacker/Matrix. Bạn đóng vai trò là CPU quyết định SWAP (đổi chỗ) hay KEEP (giữ nguyên).
+                </p>
+            </div>
+            <a href="BubbleSort.html" class="btn matrix-style">Khởi Chạy Protocol</a>
+        </div>
+
+        <!-- Game 3: Bubble Sort Educational -->
+        <div class="game-card" style="border-top: 3px solid #fbbf24;">
+            <div>
+                <span class="tag edu">Giáo Dục</span>
+                <h2>Matrix Sort: Edu</h2>
+                <p class="desc">
+                    Phiên bản nâng cấp của Matrix Sort. Tích hợp âm thanh phản hồi, giải thích chi tiết về thuật toán và cơ chế "Nổi bọt" sau khi hoàn thành.
+                </p>
+            </div>
+            <a href="BubbleSort2.html" class="btn" style="background-color: #d97706;">Học & Chơi</a>
+        </div>
+
+        <!-- Game 4: Binary Search -->
+        <div class="game-card" style="border-top: 3px solid var(--cyan);">
+            <div>
+                <span class="tag algo">Algorithm</span>
+                <h2 style="font-family: 'Courier New', monospace; color: var(--cyan);">Binary Hunter</h2>
+                <p class="desc">
+                    Truy tìm số bí ẩn trong dữ liệu lớn. Bạn chỉ có số lượt quét giới hạn (Logarit), buộc phải sử dụng chiến thuật "Chia để trị" (Divide & Conquer).
+                </p>
+            </div>
+            <a href="BinarySearch.html" class="btn" style="background-color: var(--cyan-dim); border: 1px solid var(--cyan);">Truy Cập Dữ Liệu</a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 MiniGame Collection. Code by Gemini Assist.
+    </footer>
+
+</body>
+</html>
