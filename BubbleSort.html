@@ -17,10 +17,8 @@
             color: var(--matrix-green);
             font-family: var(--font-main);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            flex-direction: row; /* Chia đôi màn hình */
+            height: 100vh; /* Cố định chiều cao bằng màn hình để không bị trôi */
             margin: 0;
             overflow: hidden;
         }
@@ -32,28 +30,98 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9);
             z-index: 100;
-            flex-direction: column;
-            align-items: center;
+            display: flex; /* Flex để căn giữa nội dung */
+            align-items: flex-start; /* Để scroll được nếu nội dung dài */
             justify-content: center;
-            text-align: center;
-            border: 2px solid var(--matrix-green);
+            overflow-y: auto; /* Cho phép cuộn dọc */
+            padding: 20px 0;
+        }
+
+        .victory-content {
+            background: #000;
+            border: 1px solid var(--matrix-green);
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            margin: auto; /* Căn giữa trong flex container */
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
         }
 
         .victory-text {
             font-size: 3rem;
             color: var(--bright-green);
             text-shadow: 0 0 20px var(--bright-green);
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 10px;
             animation: pulse 1.5s infinite;
         }
 
+        .code-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+            color: #a5d6a7;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .tab-btn {
+            background: #111;
+            border: 1px solid #333;
+            color: #666;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            border-color: var(--matrix-green);
+            color: var(--matrix-green);
+            background: rgba(0, 143, 17, 0.1);
+        }
+
+        /* Layout chia cột */
+        .main-stage {
+            flex: 7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #1a3a1a;
+            position: relative;
+        }
+
+        .log-sidebar {
+            flex: 3;
+            background: #000;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100%; /* Đảm bảo chiều cao lấp đầy cha để kích hoạt scroll */
+            font-size: 0.85rem;
+            border-left: 1px solid var(--matrix-green);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: inset 5px 0 15px rgba(0,0,0,0.5);
+        }
+
         #terminal-header {
-            width: 80%;
-            border-bottom: 1px solid #1a3a1a;
+            width: 90%;
             margin-bottom: 30px;
-            padding: 10px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             opacity: 0.8;
+            text-align: center;
         }
 
         #array-display {
@@ -72,6 +140,16 @@
             font-size: 1.4rem;
             transition: all 0.3s ease;
             background: rgba(0, 20, 0, 0.5);
+            position: relative;
+        }
+
+        /* Hiển thị index dưới mỗi node */
+        .node::after {
+            content: '[' attr(data-index) ']';
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.7rem;
+            color: #555;
         }
 
         .node.comparing {
@@ -117,6 +195,21 @@
 
         .stats { margin-top: 20px; font-size: 0.8rem; opacity: 0.6; }
 
+        /* Style cho từng dòng log */
+        .log-entry {
+            font-family: 'Consolas', monospace;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed #1a3a1a;
+            padding-bottom: 2px;
+            word-wrap: break-word;
+        }
+        .log-time { color: #555; margin-right: 5px; font-size: 0.7rem; }
+        .log-info { color: #ccc; }
+        .log-warn { color: #fbbf24; }
+        .log-err { color: #ff4444; }
+        .log-success { color: var(--bright-green); font-weight: bold; }
+        .log-var { color: #22d3ee; } /* Màu cyan cho biến số */
+
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.05); opacity: 0.8; }
@@ -126,28 +219,68 @@
 <body>
 
     <div id="victory-overlay">
-        <div class="victory-text">MISSION ACCOMPLISHED</div>
-        <p style="color: #ccc;">Dữ liệu đã được sắp xếp hoàn hảo.</p>
-        <div id="final-stats" style="margin: 20px 0;"></div>
-        <button class="btn" onclick="initGame()">RE-RUN PROTOCOL</button>
+        <div class="victory-content">
+            <div class="victory-text">MISSION ACCOMPLISHED</div>
+            <div id="final-stats" style="text-align: center; margin-bottom: 20px; color: #ccc;"></div>
+            
+            <hr style="border-color: #1a3a1a; margin: 20px 0;">
+
+            <h3 style="color: var(--bright-green); margin-bottom: 10px;">> KNOWLEDGE_BASE: BUBBLE SORT</h3>
+            <p style="color: #ccc; line-height: 1.5; font-size: 0.9rem;">
+                Bubble Sort (Sắp xếp nổi bọt) là thuật toán đơn giản nhất. Nó lặp qua danh sách, so sánh hai phần tử liền kề và đổi chỗ nếu chúng sai thứ tự. Phần tử lớn nhất sẽ "nổi" lên cuối mảng sau mỗi vòng lặp.
+            </p>
+
+            <h4 style="margin-top: 20px; color: var(--matrix-green);">> PSEUDO_CODE (Mã giả)</h4>
+            <div class="code-box" style="color: #ccc;">
+REPEAT
+    swapped = false
+    FOR i = 1 TO n-1
+        IF A[i-1] > A[i] THEN
+            SWAP A[i-1], A[i]
+            swapped = true
+        END IF
+    END FOR
+UNTIL not swapped</div>
+
+            <h4 style="margin-top: 20px; color: var(--matrix-green);">> IMPLEMENTATION (Mã nguồn)</h4>
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchLang('java')" data-lang="java">JAVA</button>
+                <button class="tab-btn" onclick="switchLang('js')" data-lang="js">JAVASCRIPT</button>
+                <button class="tab-btn" onclick="switchLang('python')" data-lang="python">PYTHON</button>
+                <button class="tab-btn" onclick="switchLang('cpp')" data-lang="cpp">C++</button>
+            </div>
+            <div class="code-box" id="code-display"></div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="initGame()">RE-RUN PROTOCOL</button>
+            </div>
+        </div>
     </div>
 
-    <div id="terminal-header">
-        > LOG: BUBBLE_SORT_ALGORITHM_INITIATED...<br>
-        > STATUS: WAITING FOR USER INPUT
+    <!-- Cột bên trái: Game -->
+    <div class="main-stage">
+        <div id="terminal-header">
+            > PROTOCOL: BUBBLE_SORT_V1<br>
+            > STATUS: WAITING FOR USER INPUT
+        </div>
+
+        <div id="array-display"></div>
+        
+        <div id="hint-box">Đang quét bộ nhớ...</div>
+
+        <div>
+            <button class="btn" onclick="processStep(true)">SWAP (Đổi chỗ)</button>
+            <button class="btn" onclick="processStep(false)">KEEP (Giữ nguyên)</button>
+        </div>
+
+        <div class="stats">
+            [ Pass (i): <span id="pass-count">0</span> | Index (j): <span id="idx-count">0</span> ]
+        </div>
     </div>
 
-    <div id="array-display"></div>
-    
-    <div id="hint-box">Đang quét bộ nhớ...</div>
-
-    <div>
-        <button class="btn" onclick="processStep(true)">SWAP (Đổi chỗ)</button>
-        <button class="btn" onclick="processStep(false)">KEEP (Giữ nguyên)</button>
-    </div>
-
-    <div class="stats">
-        [ Pass: <span id="pass-count">0</span> | Comparison: <span id="comp-count">0</span> ]
+    <!-- Cột bên phải: Log -->
+    <div class="log-sidebar" id="system-log">
+        <div class="log-entry">> SYSTEM_BOOT_COMPLETE...</div>
     </div>
 
     <script>
@@ -156,13 +289,80 @@
         let totalComparisons = 0;
         let isComplete = false;
 
+        const codeSnippets = {
+            java: `public void bubbleSort(int[] arr) {
+    int n = arr.length;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // Swap arr[j] and arr[j+1]
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}`,
+            js: `function bubbleSort(arr) {
+    let n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+            }
+        }
+    }
+    return arr;
+}`,
+            python: `def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]`,
+            cpp: `void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n-1; i++) {
+        for (int j = 0; j < n-i-1; j++) {
+            if (arr[j] > arr[j+1]) {
+                std::swap(arr[j], arr[j+1]);
+            }
+        }
+    }
+}`
+        };
+
+        function switchLang(lang) {
+            document.getElementById('code-display').innerText = codeSnippets[lang];
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('data-lang') === lang) btn.classList.add('active');
+            });
+        }
+
         function initGame() {
             document.getElementById('victory-overlay').style.display = 'none';
+            document.getElementById('system-log').innerHTML = '<div class="log-entry">> SYSTEM_RESET...</div>';
             array = Array.from({length: 5}, () => Math.floor(Math.random() * 89) + 10);
             i = 0; j = 0; totalComparisons = 0;
             isComplete = false;
+            
+            addLog(`INIT: Mảng khởi tạo [ ${array.join(', ')} ]`, 'info');
+            addLog(`LOOP: Bắt đầu Pass i=0`, 'var');
+            
             updateUI();
             setHint("Nhiệm vụ: Nếu số bên TRÁI lớn hơn số bên PHẢI -> chọn SWAP.");
+        }
+
+        function addLog(msg, type = 'info') {
+            const logPanel = document.getElementById('system-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const time = new Date().toLocaleTimeString('vi-VN', {hour12: false, hour: "numeric", minute: "numeric", second: "numeric"});
+            entry.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
+            
+            logPanel.appendChild(entry);
+            logPanel.scrollTop = logPanel.scrollHeight; // Auto scroll xuống dưới
         }
 
         function updateUI() {
@@ -172,6 +372,8 @@
             array.forEach((val, idx) => {
                 const node = document.createElement('div');
                 node.className = 'node';
+                node.setAttribute('data-index', idx); // Thêm attribute index
+                
                 // Đánh dấu cặp đang so sánh
                 if (!isComplete && (idx === j || idx === j + 1)) {
                     node.classList.add('comparing');
@@ -185,7 +387,7 @@
             });
 
             document.getElementById('pass-count').innerText = i;
-            document.getElementById('comp-count').innerText = totalComparisons;
+            document.getElementById('idx-count').innerText = j;
         }
 
         function setHint(txt, color = "#ccc") {
@@ -202,19 +404,26 @@
 
             if (userSwap === shouldSwap) {
                 if (shouldSwap) {
+                    addLog(`COMPARE: ${array[j]} > ${array[j+1]} -> TRUE`, 'info');
+                    addLog(`ACTION: SWAP index [${j}] <-> [${j+1}]`, 'success');
+                    
                     const nodes = document.querySelectorAll('.node');
                     nodes[j].classList.add('swapping');
                     nodes[j+1].classList.add('swapping');
                     
                     setTimeout(() => {
                         [array[j], array[j+1]] = [array[j+1], array[j]];
+                        addLog(`UPDATE: Mảng mới [ ${array.join(', ')} ]`, 'info');
                         advanceLogic();
                     }, 400);
                 } else {
+                    addLog(`COMPARE: ${array[j]} <= ${array[j+1]} -> FALSE`, 'info');
+                    addLog(`ACTION: KEEP (Giữ nguyên vị trí)`, 'info');
                     advanceLogic();
                 }
                 setHint("Chính xác. Tiếp tục phân tích...", "var(--matrix-green)");
             } else {
+                addLog(`ERROR: Người dùng chọn sai thao tác tại j=${j}`, 'err');
                 setHint(shouldSwap ? "SAI: Số bên trái lớn hơn, phải SWAP!" : "SAI: Số bên trái nhỏ hơn, nên KEEP!", "#ff4444");
                 // Rung nhẹ màn hình khi sai
                 document.body.style.transform = "translateX(5px)";
@@ -227,12 +436,15 @@
             // Kết thúc 1 lượt quét (pass)
             if (j >= array.length - 1 - i) {
                 j = 0;
+                addLog(`INFO: Hoàn thành Pass i=${i}. Phần tử lớn nhất đã nổi lên cuối.`, 'var');
                 i++;
+                if (i < array.length - 1) addLog(`LOOP: Tăng i lên ${i}. Reset j về 0.`, 'var');
             }
 
             // Kết thúc toàn bộ thuật toán
             if (i >= array.length - 1) {
                 isComplete = true;
+                addLog(`SUCCESS: Thuật toán hoàn tất. Mảng đã sắp xếp.`, 'success');
                 showVictory();
             }
             updateUI();
@@ -242,7 +454,8 @@
             const overlay = document.getElementById('victory-overlay');
             const stats = document.getElementById('final-stats');
             overlay.style.display = 'flex';
-            stats.innerHTML = `Tổng số lần so sánh: ${totalComparisons}<br>Mảng cuối: [ ${array.join(' - ')} ]`;
+            stats.innerHTML = `[ STATUS: SORTED ] | [ COMPARISONS: ${totalComparisons} ]`;
+            switchLang('java'); // Mặc định hiển thị Java
         }
 
         function setHint(txt, color = "#ccc") {
