@@ -130,7 +130,7 @@
         <h1 style="font-weight: 300; margin-bottom: 40px;">Sắp xếp mảng</h1>
 
         <div id="game-board">
-            </div>
+        </div>
 
         <div id="msg"></div>
 
@@ -156,7 +156,7 @@
             isPlaying = true;
             msgDisplay.innerText = "";
             msgDisplay.style.color = "inherit";
-            
+
             // Logic độ khó
             const count = Math.min(10, 3 + level); // Tăng số ô, tối đa 10
             timeLeft = Math.max(8, 25 - (level * 2)); // Giảm thời gian, tối thiểu 8s
@@ -174,21 +174,24 @@
             let nums = [];
             while(nums.length < count) {
                 let r = Math.floor(Math.random() * 100) + 1;
-                if(!nums.includes(r)) nums.push(r);
+                if (!nums.includes(r)) nums.push(r);
             }
 
-            // Xáo trộn mảng
-            let shuffled = [...nums].sort(() => Math.random() - 0.5);
-            // Đảm bảo không ngẫu nhiên đúng ngay từ đầu
-            const isAlreadySorted = shuffled.every((v, i) => i === 0 || v >= shuffled[i-1]);
-            if(isAlreadySorted) return renderItems(count);
+            let shuffled;
+            let isAlreadySorted;
+            // Sử dụng do-while để đảm bảo mảng không được sắp xếp ngay từ đầu
+            // và tránh nguy cơ tràn bộ đệm đệ quy (stack overflow)
+            do {
+                shuffled = [...nums].sort(() => Math.random() - 0.5);
+                isAlreadySorted = shuffled.every((v, i) => i === 0 || v >= shuffled[i - 1]);
+            } while (isAlreadySorted && count > 1);
 
             shuffled.forEach(n => {
                 const el = document.createElement('div');
                 el.className = 'item';
                 el.draggable = true;
                 el.innerText = n;
-                
+
                 el.addEventListener('dragstart', handleDragStart);
                 el.addEventListener('dragover', handleDragOver);
                 el.addEventListener('drop', handleDrop);
@@ -199,7 +202,7 @@
         }
 
         function handleDragStart(e) {
-            if(!isPlaying) return;
+            if (!isPlaying) return;
             dragSrcEl = this;
             this.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
@@ -213,7 +216,7 @@
 
         function handleDrop(e) {
             if (e.stopPropagation) e.stopPropagation();
-            if(!isPlaying || dragSrcEl === this) return;
+            if (!isPlaying || dragSrcEl === this) return;
 
             // Hoán đổi text
             const targetText = this.innerText;
@@ -231,7 +234,7 @@
         function checkWin() {
             const items = [...document.querySelectorAll('.item')];
             const values = items.map(i => parseInt(i.innerText));
-            const isSorted = values.every((v, i) => i === 0 || v >= values[i-1]);
+            const isSorted = values.every((v, i) => i === 0 || v >= values[i - 1]);
 
             if (isSorted) {
                 isPlaying = false;
@@ -239,7 +242,7 @@
                 items.forEach(i => i.classList.add('correct'));
                 msgDisplay.style.color = "var(--success)";
                 msgDisplay.innerText = "Chính xác! Đang chuẩn bị cấp độ tiếp theo...";
-                
+
                 setTimeout(() => {
                     level++;
                     initLevel();
@@ -254,7 +257,7 @@
             timerInterval = setInterval(() => {
                 timeLeft--;
                 timerDisplay.innerText = timeLeft;
-                
+
                 if(timeLeft <= 5) timerDisplay.classList.add('warning');
 
                 if (timeLeft <= 0) {

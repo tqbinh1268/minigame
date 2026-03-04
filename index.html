@@ -4,24 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kho Game Thuật Toán</title>
+    <title>MiniGame Protocol Hub</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --success: #10b981;
+            --matrix-green: #008f11;
+            --bright-green: #00FF41;
+            --dark-bg: #050a05;
+            --font-main: 'Consolas', 'Courier New', monospace;
+            --text-primary: #f8fafc; /* Not directly used, but good to have */
+            --text-secondary: #94a3b8; /* For less prominent text */
+            --accent: #3b82f6; /* Not directly used, but good to have */
+            --accent-hover: #2563eb; /* Not directly used, but good to have */
+            --success: #10b981; /* Not directly used, but good to have */
             --matrix: #00ff41;
             --cyan: #06b6d4;
+            --orange: #fbbf24; /* For loop protocol */
+            --teal: #20c997; /* For Insertion Sort */
+            --card-bg-alpha: rgba(0, 20, 0, 0.8); /* Semi-transparent dark green for cards */
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            font-family: var(--font-main);
+            background-color: var(--dark-bg);
+            color: var(--matrix-green);
             margin: 0;
             min-height: 100vh;
             display: flex;
@@ -31,17 +36,16 @@
 
         header {
             text-align: center;
-            padding: 60px 20px 40px;
+            padding: 80px 20px 60px;
             width: 100%;
             max-width: 800px;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 10px;
-            background: linear-gradient(to right, #60a5fa, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--bright-green);
+            text-shadow: 0 0 15px var(--bright-green);
         }
 
         p.subtitle {
@@ -54,19 +58,20 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
             width: 90%;
-            max-width: 1200px;
+            max-width: 1000px;
             padding-bottom: 60px;
         }
 
         .game-card {
-            background-color: var(--card-bg);
+            background-color: var(--card-bg-alpha);
             border-radius: 16px;
             padding: 30px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid var(--matrix-green);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
         }
 
         .game-card:hover {
@@ -83,13 +88,20 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            border: 1px solid;
         }
 
-        .tag.logic { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .tag.matrix { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-        .tag.edu { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .tag.algo { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+        .tag.logic { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: #60a5fa; }
+        .tag.matrix { background: rgba(0, 255, 65, 0.1); color: var(--bright-green); border-color: var(--bright-green); }
+        .tag.edu { background: rgba(245, 158, 11, 0.1); color: var(--orange); border-color: var(--orange); }
+        .tag.algo { background: rgba(6, 182, 212, 0.1); color: var(--cyan); border-color: var(--cyan); }
+        .tag.loop { background: rgba(251, 191, 36, 0.1); color: var(--orange); border-color: var(--orange); }
+        .tag.insertion { background: rgba(32, 201, 151, 0.1); color: var(--teal); border-color: var(--teal); }
+
+        /* Specific colors for h2 in game cards */
+        .game-card h2 { color: var(--bright-green); }
+        .game-card .tag.algo + h2 { color: var(--cyan); }
 
         h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
 
@@ -103,11 +115,12 @@
         .btn {
             display: block;
             width: 100%;
-            padding: 12px 0;
+            padding: 15px 0;
             text-align: center;
-            background-color: var(--accent);
-            color: white;
-            text-decoration: none;
+            background-color: transparent;
+            color: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+            text-decoration: none; /* Remove underline */
             border-radius: 8px;
             font-weight: 600;
             transition: background-color 0.2s;
@@ -115,23 +128,42 @@
 
         .btn:hover { background-color: var(--accent-hover); }
 
-        /* Style riêng cho nút Matrix */
+        /* Specific button styles */
         .btn.matrix-style {
             background-color: transparent;
             border: 1px solid var(--matrix);
             color: var(--matrix);
         }
         .btn.matrix-style:hover {
-            background-color: var(--matrix);
+            background-color: var(--matrix); /* Fill with green */
             color: #000;
+        }
+
+        .btn.cyan-style {
+            background-color: transparent;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+        }
+        .btn.cyan-style:hover {
+            background-color: var(--cyan); /* Fill with cyan */
+            color: var(--dark-bg);
+        }
+        .btn.orange-style {
+            background-color: transparent;
+            border: 1px solid var(--orange);
+            color: var(--orange);
+        }
+        .btn.orange-style:hover {
+            background-color: var(--orange); /* Fill with orange */
+            color: var(--dark-bg);
         }
 
         footer {
             margin-top: auto;
             padding: 20px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.8rem;
+            border-top: 1px solid #1a3a1a;
             width: 100%;
             text-align: center;
         }
@@ -140,7 +172,7 @@
 <body>
 
     <header>
-        <h1>Algorithm Game Hub</h1>
+        <h1>MINIGAME PROTOCOL HUB</h1>
         <p class="subtitle">Tuyển tập các trò chơi rèn luyện tư duy thuật toán và sắp xếp</p>
     </header>
 
@@ -149,7 +181,7 @@
         <div class="game-card">
             <div>
                 <span class="tag logic">Logic</span>
-                <h2>Sort Logic Pro</h2>
+                <h2>SORT LOGIC PRO</h2>
                 <p class="desc">
                     Trò chơi kéo thả tối giản. Nhiệm vụ của bạn là sắp xếp các con số theo thứ tự tăng dần trong thời gian giới hạn. Càng lên cao, độ khó càng tăng.
                 </p>
@@ -160,8 +192,8 @@
         <!-- Game 2: Bubble Sort Matrix -->
         <div class="game-card" style="border-top: 3px solid var(--matrix);">
             <div>
-                <span class="tag matrix">Matrix Protocol</span>
-                <h2 style="font-family: 'Courier New', monospace;">Matrix Sort v1</h2>
+                <span class="tag matrix">SORTING</span>
+                <h2 style="font-family: 'Courier New', monospace;">Bubble Sort Protocol</h2>
                 <p class="desc">
                     Mô phỏng thuật toán Bubble Sort với giao diện Hacker/Matrix. Bạn đóng vai trò là CPU quyết định SWAP (đổi chỗ) hay KEEP (giữ nguyên).
                 </p>
@@ -169,34 +201,88 @@
             <a href="BubbleSort.html" class="btn matrix-style">Khởi Chạy Protocol</a>
         </div>
 
-        <!-- Game 3: Bubble Sort Educational -->
-        <div class="game-card" style="border-top: 3px solid #fbbf24;">
+        <!-- Game 3: Insertion Sort Experiment -->
+        <div class="game-card" style="border-top: 3px solid var(--teal);">
             <div>
-                <span class="tag edu">Giáo Dục</span>
-                <h2>Matrix Sort: Edu</h2>
+                <span class="tag insertion">Sorting</span>
+                <h2 style="font-family: 'Courier New', monospace; color: var(--teal);">Insertion Sort Protocol</h2>
                 <p class="desc">
-                    Phiên bản nâng cấp của Matrix Sort. Tích hợp âm thanh phản hồi, giải thích chi tiết về thuật toán và cơ chế "Nổi bọt" sau khi hoàn thành.
+                    Thực nghiệm thuật toán Insertion Sort. Bạn sẽ chèn các phần tử vào đúng vị trí trong phần mảng đã sắp xếp.
                 </p>
             </div>
-            <a href="BubbleSort2.html" class="btn" style="background-color: #d97706;">Học & Chơi</a>
+            <a href="insertionSortExperiment.html" class="btn" style="background-color: transparent; border: 1px solid var(--teal); color: var(--teal);">Khởi Chạy Protocol</a>
+        </div>
+
+        <!-- Game 3: Selection Sort Experiment -->
+        <div class="game-card" style="border-top: 3px solid var(--purple);">
+            <div>
+                <span class="tag algo">Sorting</span>
+                <h2 style="font-family: 'Courier New', monospace; color: var(--purple);">Selection Sort Protocol</h2>
+                <p class="desc">
+                    Thực nghiệm thuật toán Selection Sort. Bạn sẽ tìm phần tử nhỏ nhất trong phần chưa sắp xếp và đặt nó vào đúng vị trí.
+                </p>
+            </div>
+            <a href="selectionSortExperiment.html" class="btn" style="background-color: transparent; border: 1px solid var(--purple); color: var(--purple);">Khởi Chạy Protocol</a>
+        </div>
+
+        <!-- Game 4: Linear Search Experiment -->
+        <div class="game-card" style="border-top: 3px solid var(--red);">
+            <div>
+                <span class="tag algo">Searching</span>
+                <h2 style="font-family: 'Courier New', monospace; color: var(--red);">Linear Search Protocol</h2>
+                <p class="desc">
+                    Thực nghiệm thuật toán Linear Search. Bạn sẽ duyệt qua mảng tuần tự để tìm kiếm một giá trị mục tiêu.
+                </p>
+            </div>
+            <a href="linearSearchExperiment.html" class="btn" style="background-color: transparent; border: 1px solid var(--red); color: var(--red);">Khởi Chạy Protocol</a>
         </div>
 
         <!-- Game 4: Binary Search -->
         <div class="game-card" style="border-top: 3px solid var(--cyan);">
             <div>
-                <span class="tag algo">Algorithm</span>
+                <span class="tag algo">Search</span>
                 <h2 style="font-family: 'Courier New', monospace; color: var(--cyan);">Binary Hunter</h2>
                 <p class="desc">
                     Truy tìm số bí ẩn trong dữ liệu lớn. Bạn chỉ có số lượt quét giới hạn (Logarit), buộc phải sử dụng chiến thuật "Chia để trị" (Divide & Conquer).
                 </p>
             </div>
-            <a href="BinarySearch.html" class="btn" style="background-color: var(--cyan-dim); border: 1px solid var(--cyan);">Truy Cập Dữ Liệu</a>
+            <a href="BinarySearch.html" class="btn cyan-style">Truy Cập Dữ Liệu</a>
         </div>
+        <!-- Game 5: IF Statement Experiment -->
+    <div class="game-card" style="border-top: 3px solid var(--matrix);">
+        <div>
+            <span class="tag logic">Control Flow</span>
+            <h2 style="font-family: 'Courier New', monospace;">IF Protocol</h2>
+            <p class="desc">
+                Thực nghiệm lệnh IF. Bạn sẽ được cung cấp các biến và một điều kiện. Nhiệm vụ của bạn là đánh giá xem điều kiện đó là ĐÚNG hay SAI.
+            </p>
+        </div>
+        <a href="ifStatementExperiment.html" class="btn matrix-style">Bắt Đầu Thực Nghiệm</a>
+    </div>
+    <!-- Game 6: Loop Experiment -->
+    <div class="game-card" style="border-top: 3px solid var(--orange);">
+        <div>
+            <span class="tag loop">Control Flow</span>
+            <h2 style="font-family: 'Courier New', monospace; color: var(--orange);">Loop Protocol</h2>
+            <p class="desc">
+                Thực nghiệm vòng lặp FOR và WHILE. Đánh giá điều kiện lặp để xác định vòng lặp sẽ TIẾP TỤC hay KẾT THÚC.
+            </p>
+        </div>
+        <a href="loopExperiment.html" class="btn orange-style">Khởi Chạy Protocol</a>
     </div>
 
-    <footer>
-        &copy; 2024 MiniGame Collection. Code by Gemini Assist.
-    </footer>
+    </div>
+    
+</div>
+
+<footer>
+    &copy; <span id="copyright-year">2024</span> MiniGame Collection. Code by Gemini Assist.
+</footer>
+
+    <script>
+        // Tự động cập nhật năm ở footer
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
 
 </body>
 </html>

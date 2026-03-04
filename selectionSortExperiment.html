@@ -2,17 +2,22 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Bubble Sort Protocol</title>
+    <title>Selection Sort Protocol</title>
     <style>
         :root {
-            /* Tông màu xanh trầm hơn để không đau mắt */
-            --matrix-green: #008f11; 
+            --matrix-green: #008f11;
             --bright-green: #00FF41;
             --dark-bg: #050a05;
-            --teal: #20c997; /* Added for consistency */
-            --purple: #8b5cf6; /* Added for consistency */
-            --red: #ef4444; /* Added for consistency */
             --font-main: 'Consolas', 'Courier New', monospace;
+            --teal: #20c997; /* Added for consistency */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --matrix: #00ff41;
+            --cyan: #06b6d4;
+            --purple: #8b5cf6; /* New color for Selection Sort */
         }
 
         body {
@@ -20,22 +25,22 @@
             color: var(--matrix-green);
             font-family: var(--font-main);
             display: flex;
-            flex-direction: row; /* Chia đôi màn hình */
-            height: 100vh; /* Cố định chiều cao bằng màn hình để không bị trôi */
+            flex-direction: row;
+            height: 100vh;
             margin: 0;
             overflow: hidden;
         }
 
-        /* Màn hình chiến thắng */
+        /* Victory Overlay */
         #victory-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9);
             z-index: 100;
-            align-items: flex-start; /* Để scroll được nếu nội dung dài */
+            align-items: flex-start;
             justify-content: center;
-            overflow-y: auto; /* Cho phép cuộn dọc */
+            overflow-y: auto;
             padding: 20px 0;
         }
 
@@ -45,7 +50,7 @@
             padding: 30px;
             max-width: 800px;
             width: 90%;
-            margin: auto; /* Căn giữa trong flex container */
+            margin: auto;
             box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
         }
 
@@ -93,7 +98,7 @@
             background: rgba(0, 143, 17, 0.1);
         }
 
-        /* Màn hình Lý thuyết */
+        /* Theory Screen */
         #theory-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -123,16 +128,16 @@
             padding-left: 15px;
         }
 
-        /* Wrapper cho màn hình thực hành */
+        /* Practice Screen */
         #practice-screen {
-            display: none; /* Ẩn mặc định */
+            display: none;
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: row;
         }
 
-        /* Layout chia cột */
+        /* Main Stage */
         .main-stage {
             flex: 7;
             display: flex;
@@ -148,7 +153,7 @@
             background: #000;
             padding: 20px;
             overflow-y: auto;
-            height: 100%; /* Đảm bảo chiều cao lấp đầy cha để kích hoạt scroll */
+            height: 100%;
             font-size: 0.85rem;
             border-left: 1px solid var(--matrix-green);
             display: flex;
@@ -182,9 +187,9 @@
             transition: all 0.3s ease;
             background: rgba(0, 20, 0, 0.5);
             position: relative;
+            cursor: pointer; /* Make nodes clickable */
         }
 
-        /* Hiển thị index dưới mỗi node */
         .node::after {
             content: '[' attr(data-index) ']';
             position: absolute;
@@ -193,20 +198,28 @@
             color: #555;
         }
 
-        .node.comparing {
+        .node.current-pass-start {
+            border: 2px solid var(--purple);
+            box-shadow: 0 0 10px var(--purple);
+            color: var(--purple);
+        }
+
+        .node.min-candidate {
             border: 2px solid var(--bright-green);
             box-shadow: 0 0 10px var(--bright-green);
             color: var(--bright-green);
         }
 
-        .node.swapping {
-            background-color: var(--matrix-green);
+        .node.selected-min {
+            background-color: var(--bright-green);
             color: #000;
+            animation: pulse 0.5s infinite;
         }
 
         .node.sorted {
             border-color: #555;
             color: #555;
+            background: rgba(0, 20, 0, 0.2);
         }
 
         #hint-box {
@@ -236,7 +249,7 @@
 
         .stats { margin-top: 20px; font-size: 0.8rem; opacity: 0.6; }
 
-        /* Style cho từng dòng log */
+        /* Log styles */
         .log-entry {
             font-family: 'Consolas', monospace;
             margin-bottom: 4px;
@@ -249,7 +262,8 @@
         .log-warn { color: #fbbf24; }
         .log-err { color: #ff4444; }
         .log-success { color: var(--bright-green); font-weight: bold; }
-        .log-var { color: #22d3ee; } /* Màu cyan cho biến số */
+        .log-var { color: var(--cyan); } /* Cyan for variables */
+        .log-action { color: var(--purple); font-weight: bold; } /* Purple for actions */
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
@@ -261,27 +275,27 @@
 
     <div id="victory-overlay">
         <div class="victory-content">
-            <div class="victory-text">MISSION ACCOMPLISHED</div>
+            <div class="victory-text">PROTOCOL COMPLETE</div>
             <div id="final-stats" style="text-align: center; margin-bottom: 20px; color: #ccc;"></div>
             
             <hr style="border-color: #1a3a1a; margin: 20px 0;">
 
-            <h3 style="color: var(--bright-green); margin-bottom: 10px;">> KNOWLEDGE_BASE: BUBBLE SORT</h3>
+            <h3 style="color: var(--bright-green); margin-bottom: 10px;">> KNOWLEDGE_BASE: SELECTION SORT</h3>
             <p style="color: #ccc; line-height: 1.5; font-size: 0.9rem;">
-                Bubble Sort (Sắp xếp nổi bọt) là thuật toán đơn giản nhất. Nó lặp qua danh sách, so sánh hai phần tử liền kề và đổi chỗ nếu chúng sai thứ tự. Phần tử lớn nhất sẽ "nổi" lên cuối mảng sau mỗi vòng lặp.
+                Selection Sort (Sắp xếp chọn) là một thuật toán sắp xếp đơn giản. Nó hoạt động bằng cách lặp đi lặp lại việc tìm phần tử nhỏ nhất (hoặc lớn nhất) từ phần chưa được sắp xếp của danh sách và đặt nó vào vị trí đầu (hoặc cuối) của phần đã sắp xếp.
             </p>
 
             <h4 style="margin-top: 20px; color: var(--matrix-green);">> PSEUDO_CODE (Mã giả)</h4>
             <div class="code-box" style="color: #ccc;">
-REPEAT
-    swapped = false
-    FOR i = 1 TO n-1
-        IF A[i-1] > A[i] THEN
-            SWAP A[i-1], A[i]
-            swapped = true
+FOR i FROM 0 TO n-2
+    min_idx = i
+    FOR j FROM i+1 TO n-1
+        IF A[j] < A[min_idx] THEN
+            min_idx = j
         END IF
     END FOR
-UNTIL not swapped</div>
+    SWAP A[i], A[min_idx]
+END FOR</div>
 
             <h4 style="margin-top: 20px; color: var(--matrix-green);">> IMPLEMENTATION (Mã nguồn)</h4>
             <div class="tab-container">
@@ -299,37 +313,43 @@ UNTIL not swapped</div>
         </div>
     </div>
 
-    <!-- Màn hình Lý thuyết -->
+    <!-- Theory Screen -->
     <div id="theory-screen">
         <div class="theory-card">
-            <h1 style="color: var(--bright-green); margin-bottom: 10px;">BUBBLE SORT PROTOCOL</h1>
+            <h1 style="color: var(--bright-green); margin-bottom: 10px;">SELECTION SORT PROTOCOL</h1>
             <p style="color: #666; font-size: 0.9rem;">> LOADING KNOWLEDGE BASE...</p>
             
             <div style="margin: 20px 0; color: #ccc; line-height: 1.6; text-align: left; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
                 <p><strong style="color: var(--matrix-green)">1. KHÁI NIỆM:</strong><br>
-                Sắp xếp nổi bọt (Bubble Sort) là thuật toán cơ bản, hoạt động bằng cách liên tục so sánh và hoán đổi hai phần tử liền kề nếu chúng sai thứ tự. Sau mỗi vòng lặp, phần tử lớn nhất sẽ "nổi" về cuối dãy, tương tự như bong bóng khí.</p>
+                Selection Sort (Sắp xếp chọn) là một thuật toán sắp xếp tại chỗ (in-place) không ổn định (unstable). Nó chia mảng thành hai phần: một phần đã được sắp xếp ở bên trái và một phần chưa được sắp xếp ở bên phải. Ban đầu, phần đã sắp xếp là trống và phần chưa sắp xếp là toàn bộ mảng.</p>
                 
                 <div class="theory-step">
                     <strong style="color: var(--matrix-green)">2. NGUYÊN LÝ HOẠT ĐỘNG:</strong>
                     <ul style="list-style: none; padding-left: 10px; margin-top: 5px;">
-                        <li>- Bắt đầu từ đầu mảng, so sánh cặp <b>a[0]</b> và <b>a[1]</b>.</li>
-                        <li>- Nếu <b>a[0] > a[1]</b>: Đổi chỗ (SWAP). Ngược lại giữ nguyên.</li>
-                        <li>- Tiếp tục di chuyển sang cặp tiếp theo cho đến cuối mảng.</li>
-                        <li>- Sau lượt quét đầu tiên, phần tử lớn nhất đã nằm ở cuối mảng.</li>
-                        <li>- Lặp lại quy trình với các phần tử còn lại (trừ phần tử đã cố định).</li>
+                        <li>- Lặp qua mảng từ phần tử đầu tiên đến phần tử gần cuối (vì phần tử cuối cùng sẽ tự động được sắp xếp).</li>
+                        <li>- Trong mỗi lần lặp (gọi là "pass" hoặc "vòng lặp ngoài" với biến `i`), tìm phần tử nhỏ nhất trong phần mảng chưa được sắp xếp `array[i...n-1]`.</li>
+                        <li>- Hoán đổi phần tử nhỏ nhất tìm được với phần tử đầu tiên của phần chưa được sắp xếp (tức là `array[i]`).</li>
+                        <li>- Sau mỗi pass, phần tử `array[i]` đã nằm đúng vị trí của nó trong mảng đã sắp xếp.</li>
                     </ul>
                 </div>
 
                 <div style="background: rgba(0, 20, 0, 0.5); border: 1px dashed #333; padding: 15px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 0.9rem;">
-                    <strong style="color: var(--bright-green)">VÍ DỤ MINH HỌA: [5, 1, 4, 2]</strong><br><br>
-                    Lượt 1: (5, 1, 4, 2) → (1, 5, 4, 2) → (1, 4, 5, 2) → (1, 4, 2, 5) <span style="color:#666">// 5 đã nổi</span><br>
-                    Lượt 2: (1, 4, 2, 5) → (1, 2, 4, 5) <span style="color:#666">// 4 đã nổi</span><br>
-                    Kết quả: [1, 2, 4, 5]
+                    <strong style="color: var(--bright-green)">VÍ DỤ MINH HỌA (C++): [64, 25, 12, 22, 11]</strong><br><br>
+                    <span style="color: #a5d6a7;">Mảng ban đầu: [64, 25, 12, 22, 11]</span><br>
+                    <span style="color: #a5d6a7;">Pass 1 (i=0):</span><br>
+                    <span style="color: #a5d6a7;">    Tìm min trong [64, 25, 12, 22, 11] -> 11 (tại index 4)</span><br>
+                    <span style="color: #a5d6a7;">    Hoán đổi 64 và 11 -> [11, 25, 12, 22, 64]</span><br>
+                    <span style="color: #a5d6a7;">Pass 2 (i=1):</span><br>
+                    <span style="color: #a5d6a7;">    Tìm min trong [25, 12, 22, 64] -> 12 (tại index 2)</span><br>
+                    <span style="color: #a5d6a7;">    Hoán đổi 25 và 12 -> [11, 12, 25, 22, 64]</span><br>
+                    <span style="color: #a5d6a7;">... và tiếp tục cho đến khi mảng được sắp xếp.</span><br>
+                    <span style="color:#666">// Output: [11, 12, 22, 25, 64]</span>
                 </div>
 
                 <p><strong style="color: var(--matrix-green)">3. ĐẶC ĐIỂM:</strong><br>
-                - Độ phức tạp: <b>O(n²)</b> (Hiệu suất kém với dữ liệu lớn).<br>
-                - Tối ưu: Có thể dùng biến cờ (flag) để dừng sớm nếu mảng đã sắp xếp.</p>
+                - Độ phức tạp: <b>O(n²)</b> trong mọi trường hợp (tốt nhất, trung bình, tệ nhất).<br>
+                - Ưu điểm: Đơn giản để hiểu và triển khai, thực hiện số lần hoán đổi tối thiểu (chỉ `n-1` lần hoán đổi).<br>
+                - Nhược điểm: Kém hiệu quả với các tập dữ liệu lớn.</p>
             </div>
 
             <button class="btn" onclick="startPractice()" style="font-size: 1.2rem; padding: 15px 40px; margin-top: 10px;">
@@ -338,41 +358,39 @@ UNTIL not swapped</div>
         </div>
     </div>
 
-    <!-- Cột bên trái: Game -->
+    <!-- Practice Screen -->
     <div id="practice-screen">
-    <div class="main-stage">
-        <div id="terminal-header">
-            > PROTOCOL: BUBBLE_SORT_V1<br>
-            > STATUS: WAITING FOR USER INPUT
+        <div class="main-stage">
+            <div id="terminal-header">
+                > PROTOCOL: SELECTION_SORT_V1<br>
+                > STATUS: WAITING FOR USER INPUT
+            </div>
+
+            <div id="array-display"></div>
+            
+            <div id="hint-box">Tìm phần tử nhỏ nhất trong phần chưa sắp xếp và NHẤP VÀO nó.</div>
+
+            <!-- No buttons, user clicks on nodes -->
+
+            <div class="stats">
+                [ Pass (i): <span id="pass-count">0</span> | Comparisons: <span id="comparison-count">0</span> ]
+            </div>
         </div>
 
-        <div id="array-display"></div>
-
-        <div id="hint-box">Đang quét bộ nhớ...</div>
-
-        <div>
-            <button class="btn" onclick="processStep(true)">SWAP (Đổi chỗ)</button>
-            <button class="btn" onclick="processStep(false)">KEEP (Giữ nguyên)</button>
+        <!-- Log Sidebar -->
+        <div class="log-sidebar" id="system-log">
+            <div class="log-entry">> SYSTEM_BOOT_COMPLETE...</div>
         </div>
-
-        <div class="stats">
-            [ Pass (i): <span id="pass-count">0</span> | Index (j): <span id="idx-count">0</span> ]
-        </div>
-</div>
-
-    <!-- Cột bên phải: Log -->
-    <div class="log-sidebar" id="system-log">
-        <div class="log-entry">> SYSTEM_BOOT_COMPLETE...</div>
-    </div>
     </div>
 
     <script>
         let array = [];
-        let i = 0, j = 0;
+        let i = 0; // Current pass: elements 0 to i-1 are sorted
+        let minIdxInCurrentPass = -1; // Index of the minimum element found in the unsorted part
         let totalComparisons = 0;
         let isComplete = false;
 
-        // --- HỆ THỐNG ÂM THANH (WEB AUDIO API) ---
+        // --- AUDIO SYSTEM (WEB AUDIO API) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSound(type) {
@@ -384,73 +402,87 @@ UNTIL not swapped</div>
             osc.connect(gain);
             gain.connect(audioCtx.destination);
 
-            if (type === 'swap') {
-                // Âm thanh trượt lên (khi đổi chỗ thành công)
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
                 gain.gain.setValueAtTime(0.1, now);
                 gain.gain.linearRampToValueAtTime(0, now + 0.1);
                 osc.start(now);
                 osc.stop(now + 0.1);
-            } else if (type === 'keep') {
-                // Âm thanh ngắn, trầm (khi giữ nguyên)
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, now);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.05);
-                osc.start(now);
-                osc.stop(now + 0.05);
-            } else if (type === 'error') {
-                // Âm thanh rè (khi sai)
+            } else if (type === 'wrong') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(100, now);
-                osc.frequency.linearRampToValueAtTime(50, now + 0.3);
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(75, now + 0.2);
                 gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
                 osc.start(now);
-                osc.stop(now + 0.3);
+                osc.stop(now + 0.2);
+            } else if (type === 'swap') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
             }
         }
 
         const codeSnippets = {
-            java: `public void bubbleSort(int[] arr) {
-    int n = arr.length;
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                // Swap arr[j] and arr[j+1]
-                int temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+            java: `public class SelectionSort {
+    public void sort(int[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            int min_idx = i;
+            for (int j = i + 1; j < n; j++) {
+                if (arr[j] < arr[min_idx]) {
+                    min_idx = j;
+                }
             }
+            // Swap the found minimum element with the first element
+            int temp = arr[min_idx];
+            arr[min_idx] = arr[i];
+            arr[i] = temp;
         }
     }
 }`,
-            js: `function bubbleSort(arr) {
+            js: `function selectionSort(arr) {
     let n = arr.length;
     for (let i = 0; i < n - 1; i++) {
-        for (let j = 0; j < n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        let min_idx = i;
+        for (let j = i + 1; j < n; j++) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
             }
         }
+        // Swap the found minimum element with the first element
+        [arr[i], arr[min_idx]] = [arr[min_idx], arr[i]];
     }
     return arr;
 }`,
-            python: `def bubble_sort(arr):
+            python: `def selection_sort(arr):
     n = len(arr)
-    for i in range(n):
-        for j in range(0, n-i-1):
-            if arr[j] > arr[j+1]:
-                arr[j], arr[j+1] = arr[j+1], arr[j]`,
-            cpp: `void bubbleSort(int arr[], int n) {
-    for (int i = 0; i < n-1; i++) {
-        for (int j = 0; j < n-i-1; j++) {
-            if (arr[j] > arr[j+1]) {
-                std::swap(arr[j], arr[j+1]);
+    for i in range(n - 1):
+        min_idx = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        # Swap the found minimum element with the first element
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]`,
+            cpp: `#include <iostream>
+#include <algorithm> // For std::swap
+
+void selectionSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int min_idx = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
             }
         }
+        // Swap the found minimum element with the first element
+        std::swap(arr[i], arr[min_idx]);
     }
 }`
         };
@@ -466,7 +498,6 @@ UNTIL not swapped</div>
         function startPractice() {
             document.getElementById('theory-screen').style.display = 'none';
             document.getElementById('practice-screen').style.display = 'flex';
-            // Kích hoạt AudioContext khi người dùng tương tác lần đầu
             if (audioCtx.state === 'suspended') audioCtx.resume();
             initGame();
         }
@@ -475,14 +506,34 @@ UNTIL not swapped</div>
             document.getElementById('victory-overlay').style.display = 'none';
             document.getElementById('system-log').innerHTML = '<div class="log-entry">> SYSTEM_RESET...</div>';
             array = Array.from({length: 5}, () => Math.floor(Math.random() * 89) + 10);
-            i = 0; j = 0; totalComparisons = 0;
+            i = 0;
+            minIdxInCurrentPass = -1;
+            totalComparisons = 0;
             isComplete = false;
             
             addLog(`INIT: Mảng khởi tạo [ ${array.join(', ')} ]`, 'info');
-            addLog(`LOOP: Bắt đầu Pass i=0`, 'var');
-            
+            startNewPass();
+            updateStats();
+        }
+
+        function startNewPass() {
+            if (i >= array.length - 1) {
+                isComplete = true;
+                addLog(`SUCCESS: Thuật toán hoàn tất. Mảng đã sắp xếp.`, 'success');
+                showVictory();
+                return;
+            }
+            minIdxInCurrentPass = i; // Assume first element of unsorted part is min
+            // Find the actual minimum for this pass
+            for (let k = i + 1; k < array.length; k++) {
+                totalComparisons++;
+                if (array[k] < array[minIdxInCurrentPass]) {
+                    minIdxInCurrentPass = k;
+                }
+            }
+            addLog(`LOOP: Bắt đầu Pass i=${i}. Tìm min trong [${array.slice(i).join(', ')}]`, 'var');
+            setHint(`Tìm phần tử nhỏ nhất trong phần chưa sắp xếp (từ index ${i} đến ${array.length - 1}) và NHẤP VÀO nó.`, "var(--purple)");
             updateUI();
-            setHint("Nhiệm vụ: Nếu số bên TRÁI lớn hơn số bên PHẢI -> chọn SWAP.");
         }
 
         function addLog(msg, type = 'info') {
@@ -494,7 +545,7 @@ UNTIL not swapped</div>
             entry.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
             
             logPanel.appendChild(entry);
-            logPanel.scrollTop = logPanel.scrollHeight; // Auto scroll xuống dưới
+            logPanel.scrollTop = logPanel.scrollHeight;
         }
 
         function updateUI() {
@@ -504,22 +555,25 @@ UNTIL not swapped</div>
             array.forEach((val, idx) => {
                 const node = document.createElement('div');
                 node.className = 'node';
-                node.setAttribute('data-index', idx); // Thêm attribute index
-                
-                // Đánh dấu cặp đang so sánh
-                if (!isComplete && (idx === j || idx === j + 1)) {
-                    node.classList.add('comparing');
-                }
-                // Đánh dấu các phần tử đã nằm đúng vị trí ở cuối mảng
-                if (idx > array.length - 1 - i) {
-                    node.classList.add('sorted');
-                }
+                node.setAttribute('data-index', idx);
                 node.innerText = val;
+
+                if (idx < i) { // Already sorted part
+                    node.classList.add('sorted');
+                } else if (idx === i) { // Start of unsorted part
+                    node.classList.add('current-pass-start');
+                }
+                // No specific highlight for min-candidate until user clicks
+
+                node.onclick = () => processUserSelection(idx);
                 container.appendChild(node);
             });
+            updateStats();
+        }
 
+        function updateStats() {
             document.getElementById('pass-count').innerText = i;
-            document.getElementById('idx-count').innerText = j;
+            document.getElementById('comparison-count').innerText = totalComparisons;
         }
 
         function setHint(txt, color = "#ccc") {
@@ -528,96 +582,61 @@ UNTIL not swapped</div>
             h.style.color = color;
         }
 
-        function processStep(userSwap) {
-            if (isComplete) return;
+        function processUserSelection(clickedIndex) {
+            if (isComplete || clickedIndex < i) return; // Cannot click on sorted part
 
-            const shouldSwap = array[j] > array[j+1];
-            totalComparisons++;
+            if (clickedIndex === minIdxInCurrentPass) {
+                playSound('correct');
+                addLog(`USER_ACTION: Chọn đúng phần tử nhỏ nhất: ${array[clickedIndex]} tại index ${clickedIndex}.`, 'success');
+                
+                // Highlight selected min before swap
+                const nodes = document.querySelectorAll('.node');
+                nodes[clickedIndex].classList.add('selected-min');
+                nodes[i].classList.add('current-pass-start'); // Keep start highlighted
 
-            if (userSwap === shouldSwap) {
-                if (shouldSwap) {
-                    playSound('swap'); // Hiệu ứng đổi chỗ
-                    addLog(`COMPARE: ${array[j]} > ${array[j+1]} -> TRUE`, 'info');
-                    addLog(`ACTION: SWAP index [${j}] <-> [${j+1}]`, 'success');
+                setTimeout(() => {
+                    playSound('swap');
+                    addLog(`ACTION: Hoán đổi ${array[i]} (index ${i}) và ${array[minIdxInCurrentPass]} (index ${minIdxInCurrentPass}).`, 'action');
+                    [array[i], array[minIdxInCurrentPass]] = [array[minIdxInCurrentPass], array[i]];
+                    addLog(`UPDATE: Mảng mới [ ${array.join(', ')} ]`, 'info');
+                    i++; // Move to next pass
+                    startNewPass(); // Start next pass or finish
+                }, 800);
 
-                    const nodes = document.querySelectorAll('.node');
-                    nodes[j].classList.add('swapping');
-                    nodes[j+1].classList.add('swapping');
-                    
-                    setTimeout(() => {
-                        [array[j], array[j+1]] = [array[j+1], array[j]];
-                        addLog(`UPDATE: Mảng mới [ ${array.join(', ')} ]`, 'info');
-                        advanceLogic();
-                    }, 400);
-                } else {
-                    playSound('keep'); // Hiệu ứng giữ nguyên
-                    addLog(`COMPARE: ${array[j]} <= ${array[j+1]} -> FALSE`, 'info');
-                    addLog(`ACTION: KEEP (Giữ nguyên vị trí)`, 'info');
-                    advanceLogic();
-                }
-                setHint("Chính xác. Tiếp tục phân tích...", "var(--matrix-green)");
             } else {
-                playSound('error'); // Hiệu ứng sai
-                addLog(`ERROR: Người dùng chọn sai thao tác tại j=${j}`, 'err');
-                setHint(shouldSwap ? "SAI: Số bên trái lớn hơn, phải SWAP!" : "SAI: Số bên trái nhỏ hơn, nên KEEP!", "#ff4444");
-                // Rung nhẹ màn hình khi sai
+                playSound('wrong');
+                addLog(`ERROR: Người dùng chọn sai. Expected min: ${array[minIdxInCurrentPass]} tại index ${minIdxInCurrentPass}.`, 'err');
+                setHint(`SAI! Phần tử nhỏ nhất trong phần chưa sắp xếp là ${array[minIdxInCurrentPass]} tại index ${minIdxInCurrentPass}.`, "#ff4444");
                 const practiceScreen = document.getElementById('practice-screen');
                 practiceScreen.style.transform = "translateX(5px)";
                 setTimeout(() => practiceScreen.style.transform = "none", 50);
             }
         }
 
-        function advanceLogic() {
-            j++;
-            // Kết thúc 1 lượt quét (pass)
-            if (j >= array.length - 1 - i) {
-                j = 0;
-                addLog(`INFO: Hoàn thành Pass i=${i}. Phần tử lớn nhất đã nổi lên cuối.`, 'var');
-                i++;
-                if (i < array.length - 1) addLog(`LOOP: Tăng i lên ${i}. Reset j về 0.`, 'var');
-            }
-
-            // Kết thúc toàn bộ thuật toán
-            if (i >= array.length - 1) {
-                isComplete = true;
-                addLog(`SUCCESS: Thuật toán hoàn tất. Mảng đã sắp xếp.`, 'success');
-                showVictory();
-            }
-            updateUI();
-        }
-
         function showVictory() {
-            // Hiệu ứng âm thanh chiến thắng (Arpeggio)
             const now = audioCtx.currentTime;
-            [440, 554, 659, 880].forEach((freq, i) => {
+            [440, 554, 659, 880].forEach((freq, idx) => {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'triangle';
                 osc.frequency.value = freq;
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                gain.gain.setValueAtTime(0.1, now + i * 0.1);
-                gain.gain.linearRampToValueAtTime(0, now + i * 0.1 + 0.3);
-                osc.start(now + i * 0.1);
-                osc.stop(now + i * 0.1 + 0.3);
+                gain.gain.setValueAtTime(0.1, now + idx * 0.1);
+                gain.gain.linearRampToValueAtTime(0, now + idx * 0.1 + 0.3);
+                osc.start(now + idx * 0.1);
+                osc.stop(now + idx * 0.1 + 0.3);
             });
 
             document.getElementById('victory-overlay').style.display = 'flex';
             document.getElementById('final-stats').innerHTML = `[ STATUS: SORTED ] | [ COMPARISONS: ${totalComparisons} ]`;
-            switchLang('cpp');
+            switchLang('cpp'); // Default to C++
         }
 
         function closeOverlay() {
             document.getElementById('victory-overlay').style.display = 'none';
         }
 
-        function setHint(txt, color = "#ccc") {
-            const h = document.getElementById('hint-box');
-            h.innerText = txt;
-            h.style.color = color;
-        }
-
-        // Khởi tạo luồng: Luôn hiện Lý thuyết trước, ẩn Game đi
         window.onload = function() {
             document.getElementById('theory-screen').style.display = 'flex';
             document.getElementById('practice-screen').style.display = 'none';
