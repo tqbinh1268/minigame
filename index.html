@@ -20,6 +20,9 @@
             --cyan: #06b6d4;
             --orange: #fbbf24; /* For loop protocol */
             --teal: #20c997; /* For Insertion Sort */
+            --gold: #ffd700; /* For Array Data Structure games */
+            --purple: #8b5cf6; /* For Selection Sort */
+            --red: #ef4444; /* For Linear Search */
             --card-bg-alpha: rgba(0, 20, 0, 0.8); /* Semi-transparent dark green for cards */
         }
 
@@ -92,16 +95,23 @@
             border: 1px solid;
         }
 
-        .tag.logic { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: #60a5fa; }
-        .tag.matrix { background: rgba(0, 255, 65, 0.1); color: var(--bright-green); border-color: var(--bright-green); }
-        .tag.edu { background: rgba(245, 158, 11, 0.1); color: var(--orange); border-color: var(--orange); }
-        .tag.algo { background: rgba(6, 182, 212, 0.1); color: var(--cyan); border-color: var(--cyan); }
-        .tag.loop { background: rgba(251, 191, 36, 0.1); color: var(--orange); border-color: var(--orange); }
-        .tag.insertion { background: rgba(32, 201, 151, 0.1); color: var(--teal); border-color: var(--teal); }
+        /* Tag Styles */
+        .tag.general { background: rgba(0, 255, 65, 0.1); color: var(--bright-green); border-color: var(--bright-green); }
+        .tag.sorting { background: rgba(0, 255, 65, 0.1); color: var(--matrix); border-color: var(--matrix); }
+        .tag.sorting.teal { background: rgba(32, 201, 151, 0.1); color: var(--teal); border-color: var(--teal); }
+        .tag.sorting.purple { background: rgba(139, 92, 246, 0.1); color: var(--purple); border-color: var(--purple); }
+        .tag.searching { background: rgba(6, 182, 212, 0.1); color: var(--cyan); border-color: var(--cyan); }
+        .tag.searching.red { background: rgba(239, 68, 68, 0.1); color: var(--red); border-color: var(--red); }
+        .tag.control-flow { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: #60a5fa; }
+        .tag.control-flow.orange { background: rgba(251, 191, 36, 0.1); color: var(--orange); border-color: var(--orange); }
 
         /* Specific colors for h2 in game cards */
-        .game-card h2 { color: var(--bright-green); }
-        .game-card .tag.algo + h2 { color: var(--cyan); }
+        .game-card h2 { color: var(--bright-green); } /* Default for h2 */
+        .game-card .tag.sorting.teal + h2 { color: var(--teal); }
+        .game-card .tag.sorting.purple + h2 { color: var(--purple); }
+        .game-card .tag.searching.red + h2 { color: var(--red); }
+        .game-card .tag.searching + h2 { color: var(--cyan); }
+        .game-card .tag.control-flow.orange + h2 { color: var(--orange); }
 
         h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
 
@@ -157,6 +167,42 @@
             background-color: var(--orange); /* Fill with orange */
             color: var(--dark-bg);
         }
+        .btn.teal-style {
+            background-color: transparent;
+            border: 1px solid var(--teal);
+            color: var(--teal);
+        }
+        .btn.teal-style:hover {
+            background-color: var(--teal);
+            color: var(--dark-bg);
+        }
+        .btn.purple-style {
+            background-color: transparent;
+            border: 1px solid var(--purple);
+            color: var(--purple);
+        }
+        .btn.purple-style:hover {
+            background-color: var(--purple);
+            color: var(--dark-bg);
+        }
+        .btn.red-style {
+            background-color: transparent;
+            border: 1px solid var(--red);
+            color: var(--red);
+        }
+        .btn.red-style:hover {
+            background-color: var(--red);
+            color: var(--dark-bg);
+        }
+        .btn.gold-style {
+            background-color: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+        }
+        .btn.gold-style:hover {
+            background-color: var(--gold);
+            color: var(--dark-bg);
+        }
 
         footer {
             margin-top: auto;
@@ -178,15 +224,15 @@
 
     <div class="container">
         <!-- Game 1: Sắp xếp mảng -->
-        <div class="game-card">
+        <div class="game-card" style="border-top: 3px solid var(--matrix);">
             <div>
-                <span class="tag logic">Logic</span>
+                <span class="tag sorting">Sorting</span>
                 <h2>SORT LOGIC PRO</h2>
                 <p class="desc">
                     Trò chơi kéo thả tối giản. Nhiệm vụ của bạn là sắp xếp các con số theo thứ tự tăng dần trong thời gian giới hạn. Càng lên cao, độ khó càng tăng.
                 </p>
             </div>
-            <a href="SapXepMang.html" class="btn">Chơi Ngay</a>
+            <a href="SapXepMang.html" class="btn matrix-style">Bắt Đầu</a>
         </div>
 
         <!-- Game 2: Bubble Sort Matrix -->
@@ -198,85 +244,121 @@
                     Mô phỏng thuật toán Bubble Sort với giao diện Hacker/Matrix. Bạn đóng vai trò là CPU quyết định SWAP (đổi chỗ) hay KEEP (giữ nguyên).
                 </p>
             </div>
-            <a href="BubbleSort.html" class="btn matrix-style">Khởi Chạy Protocol</a>
+            <a href="BubbleSort.html" class="btn matrix-style">Bắt Đầu</a>
         </div>
 
         <!-- Game 3: Insertion Sort Experiment -->
         <div class="game-card" style="border-top: 3px solid var(--teal);">
             <div>
-                <span class="tag insertion">Sorting</span>
+                <span class="tag sorting">Sorting</span>
                 <h2 style="font-family: 'Courier New', monospace; color: var(--teal);">Insertion Sort Protocol</h2>
                 <p class="desc">
                     Thực nghiệm thuật toán Insertion Sort. Bạn sẽ chèn các phần tử vào đúng vị trí trong phần mảng đã sắp xếp.
                 </p>
             </div>
-            <a href="insertionSortExperiment.html" class="btn" style="background-color: transparent; border: 1px solid var(--teal); color: var(--teal);">Khởi Chạy Protocol</a>
+            <a href="insertionSortExperiment.html" class="btn teal-style">Bắt Đầu</a>
         </div>
 
         <!-- Game 3: Selection Sort Experiment -->
         <div class="game-card" style="border-top: 3px solid var(--purple);">
             <div>
-                <span class="tag algo">Sorting</span>
+                <span class="tag sorting">Sorting</span>
                 <h2 style="font-family: 'Courier New', monospace; color: var(--purple);">Selection Sort Protocol</h2>
                 <p class="desc">
                     Thực nghiệm thuật toán Selection Sort. Bạn sẽ tìm phần tử nhỏ nhất trong phần chưa sắp xếp và đặt nó vào đúng vị trí.
                 </p>
             </div>
-            <a href="selectionSortExperiment.html" class="btn" style="background-color: transparent; border: 1px solid var(--purple); color: var(--purple);">Khởi Chạy Protocol</a>
+            <a href="selectionSortExperiment.html" class="btn purple-style">Bắt Đầu</a>
         </div>
 
         <!-- Game 4: Linear Search Experiment -->
         <div class="game-card" style="border-top: 3px solid var(--red);">
             <div>
-                <span class="tag algo">Searching</span>
+                <span class="tag searching">Searching</span>
                 <h2 style="font-family: 'Courier New', monospace; color: var(--red);">Linear Search Protocol</h2>
                 <p class="desc">
                     Thực nghiệm thuật toán Linear Search. Bạn sẽ duyệt qua mảng tuần tự để tìm kiếm một giá trị mục tiêu.
                 </p>
             </div>
-            <a href="linearSearchExperiment.html" class="btn" style="background-color: transparent; border: 1px solid var(--red); color: var(--red);">Khởi Chạy Protocol</a>
+            <a href="linearSearchExperiment.html" class="btn red-style">Bắt Đầu</a>
         </div>
 
         <!-- Game 4: Binary Search -->
         <div class="game-card" style="border-top: 3px solid var(--cyan);">
             <div>
-                <span class="tag algo">Search</span>
+                <span class="tag searching">Searching</span>
                 <h2 style="font-family: 'Courier New', monospace; color: var(--cyan);">Binary Hunter</h2>
                 <p class="desc">
                     Truy tìm số bí ẩn trong dữ liệu lớn. Bạn chỉ có số lượt quét giới hạn (Logarit), buộc phải sử dụng chiến thuật "Chia để trị" (Divide & Conquer).
                 </p>
             </div>
-            <a href="BinarySearch.html" class="btn cyan-style">Truy Cập Dữ Liệu</a>
+            <a href="BinarySearch.html" class="btn cyan-style">Bắt Đầu</a>
         </div>
         <!-- Game 5: IF Statement Experiment -->
     <div class="game-card" style="border-top: 3px solid var(--matrix);">
         <div>
-            <span class="tag logic">Control Flow</span>
+            <span class="tag control-flow">Control Flow</span>
             <h2 style="font-family: 'Courier New', monospace;">IF Protocol</h2>
             <p class="desc">
                 Thực nghiệm lệnh IF. Bạn sẽ được cung cấp các biến và một điều kiện. Nhiệm vụ của bạn là đánh giá xem điều kiện đó là ĐÚNG hay SAI.
             </p>
         </div>
-        <a href="ifStatementExperiment.html" class="btn matrix-style">Bắt Đầu Thực Nghiệm</a>
+        <a href="ifStatementExperiment.html" class="btn matrix-style">Bắt Đầu</a>
     </div>
     <!-- Game 6: Loop Experiment -->
     <div class="game-card" style="border-top: 3px solid var(--orange);">
         <div>
-            <span class="tag loop">Control Flow</span>
+            <span class="tag control-flow">Control Flow</span>
             <h2 style="font-family: 'Courier New', monospace; color: var(--orange);">Loop Protocol</h2>
             <p class="desc">
                 Thực nghiệm vòng lặp FOR và WHILE. Đánh giá điều kiện lặp để xác định vòng lặp sẽ TIẾP TỤC hay KẾT THÚC.
             </p>
         </div>
-        <a href="loopExperiment.html" class="btn orange-style">Khởi Chạy Protocol</a>
+            <a href="loopExperiment.html" class="btn orange-style">Bắt Đầu</a>
+        </div>
+
+        <!-- Game 7: Array Mutation Protocol -->
+        <div class="game-card" style="border-top: 3px solid var(--orange);">
+            <div>
+                <span class="tag data-structure">Data Structure</span>
+                <h2 style="font-family: 'Courier New', monospace; color: var(--orange);">Array Mutation Protocol</h2>
+                <p class="desc">
+                    Thực nghiệm các thao tác cơ bản trên mảng như PUSH (thêm cuối), POP (xóa cuối), SHIFT (xóa đầu) và UNSHIFT (thêm đầu). Hiểu cách mảng thay đổi kích thước và dữ liệu.
+                </p>
+            </div>
+            <a href="arrayMethodsAdđelete.html" class="btn orange-style">Bắt Đầu</a>
+        </div>
+
+        <!-- Game 8: Array Memory Protocol -->
+        <div class="game-card" style="border-top: 3px solid var(--purple);">
+            <div>
+                <span class="tag data-structure">Data Structure</span>
+                <h2 style="font-family: 'Courier New', monospace; color: var(--purple);">Array Memory Protocol</h2>
+                <p class="desc">
+                    Thực nghiệm cách mảng lưu trữ dữ liệu trong bộ nhớ liên tiếp. Truy xuất giá trị tại các chỉ số cụ thể và hiểu cấu trúc cơ bản của mảng.
+                </p>
+            </div>
+            <a href="arrayProtoco.html" class="btn purple-style">Bắt Đầu</a>
     </div>
+
+        <!-- Game 9: Sorted Insertion Protocol -->
+        <div class="game-card" style="border-top: 3px solid var(--gold);">
+            <div>
+                <span class="tag data-structure">Data Structure</span>
+                <h2 style="font-family: 'Courier New', monospace; color: var(--gold);">Sorted Insertion Protocol</h2>
+                <p class="desc">
+                    Thực nghiệm chèn một phần tử vào mảng đã sắp xếp mà vẫn giữ nguyên thứ tự. Hiểu cách dịch chuyển các phần tử để tạo chỗ trống.
+                </p>
+            </div>
+            <a href="insertIntoSortedArray.html" class="btn gold-style">Bắt Đầu</a>
+        </div>
 
     </div>
     
 </div>
 
 <footer>
-    &copy; <span id="copyright-year">2024</span> MiniGame Collection. Code by Gemini Assist.
+    &copy; <span id="copyright-year">2024</span> MiniGame Collection. Code by OMG!.
 </footer>
 
     <script>

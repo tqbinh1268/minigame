@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Array Mutation Protocol - Push/Pop/Shift</title>
+    <style>
+        :root {
+            --matrix-green: #008f11;
+            --bright-green: #00FF41;
+            --dark-bg: #050a05;
+            --font-main: 'Consolas', 'Courier New', monospace;
+            --cyan: #06b6d4;
+            --orange: #f97316;
+        }
+
+        body {
+            background-color: var(--dark-bg); color: var(--matrix-green);
+            font-family: var(--font-main); display: flex; height: 100vh; margin: 0; overflow: hidden;
+        }
+
+        /* --- SCREENS --- */
+        #theory-screen, #victory-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark-bg); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+        }
+
+        #practice-screen { display: none; width: 100%; height: 100%; flex-direction: row; }
+
+        .card, .mission-box {
+            border: 1px solid var(--matrix-green); padding: 30px; max-width: 850px; width: 90%;
+            background: rgba(0, 20, 0, 0.95); text-align: center;
+        }
+
+        .main-stage { flex: 7; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #1a3a1a; }
+        .log-sidebar { flex: 3; background: #000; padding: 20px; overflow-y: auto; font-size: 0.85rem; border-left: 1px solid var(--matrix-green); }
+
+        /* --- ARRAY VISUAL --- */
+        .array-container { display: flex; gap: 10px; margin: 40px 0; min-height: 100px; }
+        .array-cell {
+            width: 65px; height: 65px; border: 2px solid var(--matrix-green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; position: relative; background: rgba(0, 30, 0, 0.6);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .array-cell.new { border-color: var(--bright-green); color: var(--bright-green); animation: pulse 0.5s; }
+        .array-cell.removing { transform: translateY(50px); opacity: 0; }
+        .index-label { position: absolute; top: -25px; font-size: 0.8rem; color: var(--cyan); }
+
+        /* --- UI ELEMENTS --- */
+        .btn { background: transparent; color: var(--matrix-green); border: 1px solid var(--matrix-green); padding: 10px 20px; cursor: pointer; font-family: var(--font-main); text-transform: uppercase; margin: 5px; }
+        .btn:hover { background: var(--matrix-green); color: #000; }
+        .btn-orange { color: var(--orange); border-color: var(--orange); }
+        .btn-orange:hover { background: var(--orange); color: #000; }
+
+        .code-box { background: #050505; border: 1px solid #333; padding: 15px; color: #a5d6a7; font-size: 0.85rem; text-align: left; white-space: pre-wrap; margin-top: 10px; }
+        .tab-btn { background: #111; border: 1px solid #333; color: #666; padding: 5px 15px; cursor: pointer; font-family: var(--font-main); }
+        .tab-btn.active { border-color: var(--matrix-green); color: var(--bright-green); }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div id="theory-screen">
+        <div class="card">
+            <h1 style="color: var(--bright-green)">> ARRAY_MUTATION_PROTOCOL</h1>
+            <div style="text-align: left; color: #ccc; line-height: 1.6; margin: 20px 0;">
+                <p><strong style="color: var(--bright-green)">PUSH:</strong> Thêm một phần tử vào **cuối** mảng. (Độ phức tạp: O(1))</p>
+                <p><strong style="color: var(--orange)">POP:</strong> Xóa phần tử ở **cuối** mảng. (Độ phức tạp: O(1))</p>
+                <p><strong style="color: var(--cyan)">SHIFT/UNSHIFT:</strong> Thêm/Xóa ở **đầu** mảng. (Độ phức tạp: O(n) do phải dời tất cả phần tử còn lại).</p>
+            </div>
+            <button class="btn" onclick="startPractice()">BẮT ĐẦU HUẤN LUYỆN</button>
+        </div>
+    </div>
+
+    <div id="practice-screen">
+        <div class="main-stage">
+            <h2 id="mission-text" style="color: var(--bright-green)">> NHIỆM VỤ: PUSH GIÁ TRỊ 99</h2>
+            <div class="array-container" id="array-visual"></div>
+            
+            <div class="controls">
+                <button class="btn" onclick="handleAction('push')">PUSH(val)</button>
+                <button class="btn btn-orange" onclick="handleAction('pop')">POP()</button>
+            </div>
+            <p style="margin-top: 20px; color: #555;">Mục tiêu: Hoàn thành <span id="progress">0</span>/4 thao tác</p>
+        </div>
+        <div class="log-sidebar" id="system-log"></div>
+    </div>
+
+    <div id="victory-overlay" style="display: none;">
+        <div class="mission-box">
+            <h1 style="color: var(--bright-green); font-size: 2.5rem;">MUTATION COMPLETE</h1>
+            <div class="tab-container" style="display:flex; justify-content: flex-start; margin-top:20px;">
+                <button class="tab-btn active" onclick="switchLang('cpp')">C++</button>
+                <button class="tab-btn" onclick="switchLang('java')">JAVA</button>
+                <button class="tab-btn" onclick="switchLang('js')">JS</button>
+                <button class="tab-btn" onclick="switchLang('python')">PYTHON</button>
+            </div>
+            <div class="code-box" id="final-code"></div>
+            <button class="btn" onclick="location.reload()" style="margin-top: 20px;">RE-RUN</button>
+        </div>
+    </div>
+
+    <script>
+        let arr = [10, 20, 30];
+        let step = 0;
+        // Hệ thống âm thanh
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type) {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'correct') {
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Nốt cao
+        oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+    } else {
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(110, audioCtx.currentTime); // Nốt trầm, rè
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+    }
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.3);
+}
+        const missions = [
+            { type: 'push', val: 99, label: 'PUSH GIÁ TRỊ 99' },
+            { type: 'pop', val: null, label: 'POP PHẦN TỬ CUỐI' },
+            { type: 'push', val: 55, label: 'PUSH GIÁ TRỊ 55' },
+            { type: 'pop', val: null, label: 'POP PHẦN TỬ CUỐI' }
+        ];
+
+        const codes = {
+            cpp: `vector<int> v = {10, 20, 30};\nv.push_back(99); // Thêm cuối\nv.pop_back();    // Xóa cuối`,
+            java: `ArrayList<Integer> list = new ArrayList<>(Arrays.asList(10, 20, 30));\nlist.add(99);    // Push\nlist.remove(list.size() - 1); // Pop`,
+            js: `let arr = [10, 20, 30];\narr.push(99); // Thêm cuối\narr.pop();    // Xóa cuối`,
+            python: `arr = [10, 20, 30]\narr.append(99) # Push\narr.pop()       # Pop`
+        };
+
+        function startPractice() {
+            document.getElementById('theory-screen').style.display = 'none';
+            document.getElementById('practice-screen').style.display = 'flex';
+            renderArray();
+            updateMission();
+        }
+
+        function renderArray() {
+            const container = document.getElementById('array-visual');
+            container.innerHTML = arr.map((v, i) => `<div class="array-cell"><span class="index-label">${i}</span>${v}</div>`).join('');
+        }
+
+        function updateMission() {
+            if (step >= missions.length) {
+                document.getElementById('victory-overlay').style.display = 'flex';
+                switchLang('cpp');
+                return;
+            }
+            document.getElementById('mission-text').innerText = `> NHIỆM VỤ: ${missions[step].label}`;
+            document.getElementById('progress').innerText = step;
+        }
+
+        function handleAction(actionType) {
+            const currentMission = missions[step];
+            if (actionType === currentMission.type) {
+                if (actionType === 'push') {
+                    arr.push(currentMission.val);
+                    addLog(`SUCCESS: Đã đẩy ${currentMission.val} vào cuối mảng.`, 'success');
+                } else {
+                    const removed = arr.pop();
+                    addLog(`SUCCESS: Đã loại bỏ giá trị ${removed} khỏi mảng.`, 'success');
+                }
+                step++;
+                renderArray();
+                updateMission();
+            } else {
+                addLog(`ERROR: Sai thao tác! Yêu cầu là ${currentMission.type.toUpperCase()}.`, 'err');
+            }
+        }
+
+        function switchLang(lang) {
+            document.getElementById('final-code').innerText = codes[lang];
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase() === lang));
+        }
+
+        function addLog(msg, type) {
+            const log = document.getElementById('system-log');
+            log.innerHTML += `<div style="color:${type==='success'?'var(--bright-green)':'red'}">> ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>

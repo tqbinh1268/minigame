@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Array Protocol - Memory Mapping</title>
+    <style>
+        :root {
+            --matrix-green: #008f11;
+            --bright-green: #00FF41;
+            --dark-bg: #050a05;
+            --font-main: 'Consolas', 'Courier New', monospace;
+            --cyan: #06b6d4;
+            --purple: #a855f7;
+            --gold: #ffd700; /* Added for consistency with index.html */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--matrix-green);
+            font-family: var(--font-main);
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* --- SCREENS --- */
+        #theory-screen, #victory-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark-bg); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        #practice-screen { display: none; width: 100%; height: 100%; flex-direction: row; }
+
+        .card, .mission-box {
+            border: 1px solid var(--matrix-green);
+            padding: 30px; max-width: 850px; width: 90%;
+            background: rgba(0, 20, 0, 0.95);
+            box-shadow: 0 0 20px rgba(0, 143, 17, 0.2);
+            text-align: center;
+        }
+
+        /* --- LAYOUT --- */
+        .main-stage {
+            flex: 7; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-right: 1px solid #1a3a1a;
+        }
+
+        .log-sidebar {
+            flex: 3; background: #000; padding: 20px;
+            overflow-y: auto; font-size: 0.85rem;
+            border-left: 1px solid var(--matrix-green);
+        }
+
+        /* --- ARRAY VISUAL --- */
+        .array-container { display: flex; gap: 15px; margin: 40px 0; }
+        .array-cell {
+            width: 75px; height: 75px; border: 2px solid var(--matrix-green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; position: relative; background: rgba(0, 30, 0, 0.6);
+            transition: all 0.3s;
+        }
+        .array-cell.active { border-color: var(--bright-green); color: var(--bright-green); box-shadow: 0 0 15px var(--bright-green); }
+        .index-label { position: absolute; top: -25px; font-size: 0.85rem; color: var(--cyan); }
+
+        /* --- UI ELEMENTS --- */
+        .btn {
+            background: transparent; color: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+            padding: 12px 25px; cursor: pointer;
+            font-family: var(--font-main); text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-gold { color: var(--gold); border-color: var(--gold); }
+        }
+        .btn:hover { background: var(--matrix-green); color: #000; }
+
+        input {
+            background: #000; border: 1px solid var(--matrix-green);
+            color: var(--bright-green); padding: 10px;
+            font-family: inherit; width: 150px; text-align: center; font-size: 1.2rem;
+        }
+
+        /* --- TABS & CODE --- */
+        .tab-container { display: flex; gap: 2px; margin-top: 20px; }
+        .tab-btn {
+            background: #111; border: 1px solid #333; color: #666;
+            padding: 8px 20px; cursor: pointer; font-family: var(--font-main);
+        }
+        .tab-btn.active { border-color: var(--matrix-green); color: var(--bright-green); background: #000; border-bottom: none; }
+        .code-box { 
+            background: #050505; border: 1px solid #333; padding: 15px; 
+            color: #a5d6a7; font-size: 0.85rem; text-align: left;
+            white-space: pre-wrap; margin-top: 0; min-height: 200px;
+        }
+
+        .stats-grid { display: flex; justify-content: center; gap: 40px; margin: 20px 0; color: #ccc; }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px dashed #1a3a1a; padding: 2px 0; }
+        .log-success { color: var(--bright-green); }
+        .log-err { color: #ff4444; }
+    </style>
+</head>
+<body>
+
+    <div id="theory-screen">
+        <div class="card">
+            <h1 style="color: var(--bright-green)">> ARRAY_MEMORY_PROTOCOL</h1>
+            <div style="text-align: left; color: #ccc; line-height: 1.6; margin: 20px 0;">
+                <p><strong style="color: var(--bright-green)">1. BẢN CHẤT:</strong> Mảng là một dãy các ô nhớ nằm **liên tiếp** nhau.</p>
+                <p><strong style="color: var(--bright-green)">2. CHỈ SỐ (INDEX):</strong> Dùng để định vị ô nhớ, luôn bắt đầu từ <span style="color: var(--cyan)">0</span>.</p>
+                <p><strong style="color: var(--bright-green)">3. GIÁ TRỊ (VALUE):</strong> Là nội dung nằm bên trong ô nhớ tại chỉ số đó.</p>
+            </div>
+            
+            <button class="btn" onclick="startPractice()">BẮT ĐẦU THỰC NGHIỆM</button>
+        </div>
+    </div>
+
+    <div id="practice-screen">
+        <div class="main-stage">
+            <h2 style="color: var(--bright-green)">> MEMORY_ACCESS_MODE</h2>
+            <div class="array-container" id="array-visual"></div>
+            
+            <div id="target-command" style="font-size: 1.8rem; color: var(--purple); margin-bottom: 20px;">
+                CMD: array[<span id="target-index">?</span>]
+            </div>
+            
+            <div>
+                <input type="number" id="user-input" placeholder="Value?">
+                <button class="btn" onclick="checkAnswer()">EXECUTE</button>
+            </div>
+            <p style="margin-top: 20px; color: #555;">Tiến trình: <span id="progress">0</span>/5</p>
+        </div>
+
+        <div class="log-sidebar" id="system-log">
+            <div class="log-entry">> KHỞI TẠO VÙNG NHỚ...</div>
+        </div>
+    </div>
+
+    <div id="victory-overlay" style="display: none;">
+        <div class="mission-box">
+            <h1 style="color: var(--bright-green); font-size: 3rem; margin: 0;">MISSION ACCOMPLISHED</h1>
+            <div class="stats-grid">
+                <div>TRUY XUẤT: <span id="final-access" style="color: var(--bright-green)">0</span></div>
+                <div>ĐỘ CHÍNH XÁC: <span id="final-accuracy" style="color: var(--cyan)">0%</span></div>
+            </div>
+
+            <div style="text-align: left;">
+                <div class="tab-container">
+                    <button class="tab-btn active" onclick="switchLang('cpp')" data-lang="cpp">C++</button>
+                    <button class="tab-btn" onclick="switchLang('java')" data-lang="java">JAVA</button>
+                    <button class="tab-btn" onclick="switchLang('js')" data-lang="js">JS</button>
+                    <button class="tab-btn" onclick="switchLang('python')" data-lang="python">PYTHON</button>
+                </div>
+                <div class="code-box" id="final-code"></div>
+            </div>
+
+            <button class="btn" onclick="location.reload()" style="margin-top: 20px;">RE-RUN PROTOCOL</button>
+        </div>
+    </div>
+
+    <script>
+        let memoryArray = [];
+        let currentTargetIndex = 0;
+        let correctCount = 0;
+        let totalAttempts = 0;
+        const GOAL = 5;
+
+        const codes = {
+            cpp: `int main() {\n    int arr[6] = {12, 45, 78, 23, 56, 89};\n    int val = arr[3]; // Lấy giá trị tại index 3\n    return 0;\n}`,
+            java: `public class Main {\n    public static void main(String[] args) {\n        int[] arr = {12, 45, 78, 23, 56, 89};\n        int val = arr[3];\n    }\n}`,
+            js: `const arr = [12, 45, 78, 23, 56, 89];\nlet val = arr[3]; // Truy xuất index 3`,
+            python: `arr = [12, 45, 78, 23, 56, 89]\nval = arr[3] # Lấy phần tử tại vị trí số 3`
+        };
+
+        function startPractice() {
+            document.getElementById('theory-screen').style.display = 'none';
+            document.getElementById('practice-screen').style.display = 'flex';
+            initArray();
+        }
+
+        function initArray() {
+            memoryArray = Array.from({length: 6}, () => Math.floor(Math.random() * 90) + 10);
+            const container = document.getElementById('array-visual');
+            container.innerHTML = '';
+            memoryArray.forEach((val, i) => {
+                container.innerHTML += `<div class="array-cell" id="cell-${i}"><span class="index-label">idx: ${i}</span>${val}</div>`;
+            });
+            currentTargetIndex = Math.floor(Math.random() * 6);
+            document.getElementById('target-index').innerText = currentTargetIndex;
+            document.getElementById('progress').innerText = correctCount;
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById('user-input');
+            const val = parseInt(input.value);
+            if (isNaN(val)) return;
+
+            totalAttempts++;
+            if (val === memoryArray[currentTargetIndex]) {
+                correctCount++;
+                addLog(`SUCCESS: Đã đọc vùng nhớ [${currentTargetIndex}] thành công.`, 'success');
+                document.getElementById(`cell-${currentTargetIndex}`).classList.add('active');
+                setTimeout(() => {
+                    input.value = '';
+                    if (correctCount >= GOAL) showVictory();
+                    else initArray();
+                }, 700);
+            } else {
+                addLog(`ERROR: Truy xuất sai giá trị tại [${currentTargetIndex}].`, 'err');
+                input.style.borderColor = 'red';
+                setTimeout(() => input.style.borderColor = 'var(--matrix-green)', 500);
+            }
+        }
+
+        function showVictory() {
+            document.getElementById('victory-overlay').style.display = 'flex';
+            document.getElementById('final-access').innerText = totalAttempts;
+            document.getElementById('final-accuracy').innerText = ((GOAL / totalAttempts) * 100).toFixed(1) + "%";
+            switchLang('cpp');
+        }
+
+        function switchLang(lang) {
+            document.getElementById('final-code').innerText = codes[lang];
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === lang));
+        }
+
+        function addLog(msg, type = '') {
+            const log = document.getElementById('system-log');
+            log.innerHTML += `<div class="log-entry log-${type}">> ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>

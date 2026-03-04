@@ -2,627 +2,330 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Bubble Sort Protocol</title>
+    <title>Insertion Sort Protocol - Matrix System</title>
     <style>
         :root {
-            /* Tông màu xanh trầm hơn để không đau mắt */
             --matrix-green: #008f11; 
             --bright-green: #00FF41;
             --dark-bg: #050a05;
-            --teal: #20c997; /* Added for consistency */
-            --purple: #8b5cf6; /* Added for consistency */
-            --red: #ef4444; /* Added for consistency */
+            --gold: #ffd700; /* Added for consistency with index.html */
+            --teal: #20c997;
             --font-main: 'Consolas', 'Courier New', monospace;
+            --red: #ef4444;
         }
 
         body {
             background-color: var(--dark-bg);
             color: var(--matrix-green);
             font-family: var(--font-main);
-            display: flex;
-            flex-direction: row; /* Chia đôi màn hình */
-            height: 100vh; /* Cố định chiều cao bằng màn hình để không bị trôi */
             margin: 0;
             overflow: hidden;
         }
 
-        /* Màn hình chiến thắng */
-        #victory-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 100;
-            align-items: flex-start; /* Để scroll được nếu nội dung dài */
-            justify-content: center;
-            overflow-y: auto; /* Cho phép cuộn dọc */
-            padding: 20px 0;
-        }
-
-        .victory-content {
-            background: #000;
-            border: 1px solid var(--matrix-green);
-            padding: 30px;
-            max-width: 800px;
-            width: 90%;
-            margin: auto; /* Căn giữa trong flex container */
-            box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
-        }
-
-        .victory-text {
-            font-size: 3rem;
-            color: var(--bright-green);
-            text-shadow: 0 0 20px var(--bright-green);
-            text-align: center;
-            margin-bottom: 10px;
-            animation: pulse 1.5s infinite;
-        }
-
-        .code-box {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            padding: 15px;
-            margin: 10px 0;
-            font-family: 'Consolas', monospace;
-            white-space: pre-wrap;
-            color: #a5d6a7;
-            font-size: 0.85rem;
-            overflow-x: auto;
-        }
-
-        .tab-container {
-            display: flex;
-            gap: 5px;
-            margin-top: 15px;
-        }
-
-        .tab-btn {
-            background: #111;
-            border: 1px solid #333;
-            color: #666;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-family: var(--font-main);
-            transition: all 0.2s;
-            font-size: 0.8rem;
-        }
-
-        .tab-btn:hover, .tab-btn.active {
-            border-color: var(--matrix-green);
-            color: var(--matrix-green);
-            background: rgba(0, 143, 17, 0.1);
-        }
-
-        /* Màn hình Lý thuyết */
+        /* --- THEORY SCREEN --- */
         #theory-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: var(--dark-bg);
-            z-index: 50;
+            z-index: 1000;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            text-align: center;
         }
 
         .theory-card {
             border: 1px solid var(--matrix-green);
             padding: 40px;
-            max-width: 800px;
-            width: 90%;
-            background: rgba(0, 20, 0, 0.8);
-            box-shadow: 0 0 20px rgba(0, 143, 17, 0.2);
-        }
-
-        .theory-step {
-            margin: 20px 0;
-            text-align: left;
-            border-left: 3px solid var(--bright-green);
-            padding-left: 15px;
-        }
-
-        /* Wrapper cho màn hình thực hành */
-        #practice-screen {
-            display: none; /* Ẩn mặc định */
+            max-width: 850px;
             width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: row;
+            background: rgba(0, 10, 0, 0.95);
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 143, 17, 0.3);
         }
 
-        /* Layout chia cột */
+        .theory-content {
+            color: #ccc;
+            text-align: left;
+            max-height: 65vh;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding-right: 15px;
+        }
+
+        .theory-section { margin-bottom: 25px; }
+        .theory-title { color: var(--matrix-green); font-weight: bold; display: block; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid #1a3a1a; }
+        
+        .example-box {
+            background: rgba(0, 20, 0, 0.5);
+            border: 1px dashed #333;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            color: #a5d6a7;
+            line-height: 1.5;
+        }
+
+        /* --- PRACTICE SCREEN LAYOUT --- */
+        #practice-screen { display: none; width: 100vw; height: 100vh; flex-direction: row; }
         .main-stage {
-            flex: 7;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            flex: 7; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
             border-right: 1px solid #1a3a1a;
-            position: relative;
         }
 
         .log-sidebar {
-            flex: 3;
-            background: #000;
-            padding: 20px;
-            overflow-y: auto;
-            height: 100%; /* Đảm bảo chiều cao lấp đầy cha để kích hoạt scroll */
+            flex: 3; background: #000; padding: 20px;
+            overflow-y: auto; border-left: 1px solid var(--matrix-green);
             font-size: 0.85rem;
-            border-left: 1px solid var(--matrix-green);
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            box-shadow: inset 5px 0 15px rgba(0,0,0,0.5);
         }
 
-        #terminal-header {
-            width: 90%;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-            text-align: center;
-        }
-
-        #array-display {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
+        #array-display { display: flex; gap: 15px; margin: 40px 0; }
         .node {
-            width: 65px;
-            height: 65px;
-            border: 1px solid var(--matrix-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            transition: all 0.3s ease;
-            background: rgba(0, 20, 0, 0.5);
-            position: relative;
+            width: 65px; height: 65px; border: 1px solid var(--matrix-green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; background: rgba(0, 20, 0, 0.5);
         }
+        .node::after { content: '[' attr(data-index) ']'; position: absolute; bottom: -25px; font-size: 0.7rem; color: #444; }
 
-        /* Hiển thị index dưới mỗi node */
-        .node::after {
-            content: '[' attr(data-index) ']';
-            position: absolute;
-            bottom: -25px;
-            font-size: 0.7rem;
-            color: #555;
-        }
+        .node.hole { border: 2px dashed #444; background: rgba(32, 201, 151, 0.05); color: rgba(32, 201, 151, 0.3); font-style: italic; }
+        .node.comparing { border: 2px solid var(--bright-green); box-shadow: 0 0 15px var(--bright-green); color: var(--bright-green); }
+        .node.inserted { background-color: var(--bright-green); color: #000; }
+        .node.sorted { border-color: #333; color: #555; }
 
-        .node.comparing {
-            border: 2px solid var(--bright-green);
-            box-shadow: 0 0 10px var(--bright-green);
-            color: var(--bright-green);
-        }
-
-        .node.swapping {
-            background-color: var(--matrix-green);
-            color: #000;
-        }
-
-        .node.sorted {
-            border-color: #555;
-            color: #555;
-        }
-
-        #hint-box {
-            height: 60px;
-            color: #ccc;
-            font-size: 0.9rem;
-            max-width: 500px;
-            text-align: center;
-        }
+        .key-display { font-size: 2.8rem; color: var(--teal); font-weight: bold; text-shadow: 0 0 10px var(--teal); }
 
         .btn {
-            background: transparent;
-            color: var(--matrix-green);
-            border: 1px solid var(--matrix-green);
-            padding: 12px 25px;
-            cursor: pointer;
-            font-family: var(--font-main);
-            margin: 10px;
-            text-transform: uppercase;
-            transition: 0.2s;
+            background: transparent; color: var(--matrix-green);
+            border: 1px solid var(--matrix-green); padding: 12px 25px;
+            cursor: pointer; font-family: var(--font-main); margin: 10px;
+            text-transform: uppercase; transition: 0.2s;
         }
+        .btn:hover { background: var(--matrix-green); color: #000; }
 
-        .btn:hover {
-            background: var(--matrix-green);
-            color: #000;
+        /* --- VICTORY OVERLAY --- */
+        #victory-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.98); z-index: 2000;
+            align-items: center; justify-content: center; padding: 20px;
         }
+        .victory-content { background: #000; border: 1px solid var(--matrix-green); padding: 30px; width: 100%; max-width: 800px; }
+        .tab-btn { background: #111; border: 1px solid #333; color: #666; padding: 8px 16px; cursor: pointer; margin-right: 5px; font-family: var(--font-main); }
+        .tab-btn.active { border-color: var(--bright-green); color: var(--bright-green); }
+        .code-box { background: #0a0a0a; border: 1px solid #333; padding: 15px; margin: 15px 0; color: #a5d6a7; font-size: 0.85rem; white-space: pre; overflow-x: auto; }
 
-        .stats { margin-top: 20px; font-size: 0.8rem; opacity: 0.6; }
-
-        /* Style cho từng dòng log */
-        .log-entry {
-            font-family: 'Consolas', monospace;
-            margin-bottom: 4px;
-            border-bottom: 1px dashed #1a3a1a;
-            padding-bottom: 2px;
-            word-wrap: break-word;
-        }
-        .log-time { color: #555; margin-right: 5px; font-size: 0.7rem; }
-        .log-info { color: #ccc; }
-        .log-warn { color: #fbbf24; }
-        .log-err { color: #ff4444; }
-        .log-success { color: var(--bright-green); font-weight: bold; }
-        .log-var { color: #22d3ee; } /* Màu cyan cho biến số */
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-        }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #0a1a0a; padding-bottom: 2px; }
+        .log-success { color: var(--bright-green); }
+        .log-err { color: var(--red); }
     </style>
 </head>
 <body>
 
-    <div id="victory-overlay">
-        <div class="victory-content">
-            <div class="victory-text">MISSION ACCOMPLISHED</div>
-            <div id="final-stats" style="text-align: center; margin-bottom: 20px; color: #ccc;"></div>
-            
-            <hr style="border-color: #1a3a1a; margin: 20px 0;">
-
-            <h3 style="color: var(--bright-green); margin-bottom: 10px;">> KNOWLEDGE_BASE: BUBBLE SORT</h3>
-            <p style="color: #ccc; line-height: 1.5; font-size: 0.9rem;">
-                Bubble Sort (Sắp xếp nổi bọt) là thuật toán đơn giản nhất. Nó lặp qua danh sách, so sánh hai phần tử liền kề và đổi chỗ nếu chúng sai thứ tự. Phần tử lớn nhất sẽ "nổi" lên cuối mảng sau mỗi vòng lặp.
-            </p>
-
-            <h4 style="margin-top: 20px; color: var(--matrix-green);">> PSEUDO_CODE (Mã giả)</h4>
-            <div class="code-box" style="color: #ccc;">
-REPEAT
-    swapped = false
-    FOR i = 1 TO n-1
-        IF A[i-1] > A[i] THEN
-            SWAP A[i-1], A[i]
-            swapped = true
-        END IF
-    END FOR
-UNTIL not swapped</div>
-
-            <h4 style="margin-top: 20px; color: var(--matrix-green);">> IMPLEMENTATION (Mã nguồn)</h4>
-            <div class="tab-container">
-                <button class="tab-btn active" onclick="switchLang('java')" data-lang="java">JAVA</button>
-                <button class="tab-btn" onclick="switchLang('js')" data-lang="js">JAVASCRIPT</button>
-                <button class="tab-btn" onclick="switchLang('python')" data-lang="python">PYTHON</button>
-                <button class="tab-btn" onclick="switchLang('cpp')" data-lang="cpp">C++</button>
-            </div>
-            <div class="code-box" id="code-display"></div>
-
-            <div style="text-align: center; margin-top: 30px;">
-                <button class="btn" onclick="closeOverlay()">XEM LẠI KẾT QUẢ</button>
-                <button class="btn" onclick="initGame()">RE-RUN PROTOCOL</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Màn hình Lý thuyết -->
     <div id="theory-screen">
         <div class="theory-card">
-            <h1 style="color: var(--bright-green); margin-bottom: 10px;">BUBBLE SORT PROTOCOL</h1>
+            <h1 style="color: var(--bright-green); margin: 0;">INSERTION SORT PROTOCOL</h1>
             <p style="color: #666; font-size: 0.9rem;">> LOADING KNOWLEDGE BASE...</p>
             
-            <div style="margin: 20px 0; color: #ccc; line-height: 1.6; text-align: left; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
-                <p><strong style="color: var(--matrix-green)">1. KHÁI NIỆM:</strong><br>
-                Sắp xếp nổi bọt (Bubble Sort) là thuật toán cơ bản, hoạt động bằng cách liên tục so sánh và hoán đổi hai phần tử liền kề nếu chúng sai thứ tự. Sau mỗi vòng lặp, phần tử lớn nhất sẽ "nổi" về cuối dãy, tương tự như bong bóng khí.</p>
-                
-                <div class="theory-step">
-                    <strong style="color: var(--matrix-green)">2. NGUYÊN LÝ HOẠT ĐỘNG:</strong>
-                    <ul style="list-style: none; padding-left: 10px; margin-top: 5px;">
-                        <li>- Bắt đầu từ đầu mảng, so sánh cặp <b>a[0]</b> và <b>a[1]</b>.</li>
-                        <li>- Nếu <b>a[0] > a[1]</b>: Đổi chỗ (SWAP). Ngược lại giữ nguyên.</li>
-                        <li>- Tiếp tục di chuyển sang cặp tiếp theo cho đến cuối mảng.</li>
-                        <li>- Sau lượt quét đầu tiên, phần tử lớn nhất đã nằm ở cuối mảng.</li>
-                        <li>- Lặp lại quy trình với các phần tử còn lại (trừ phần tử đã cố định).</li>
+            <div class="theory-content">
+                <div class="theory-section">
+                    <span class="theory-title">1. KHÁI NIỆM:</span>
+                    <p>Insertion Sort (Sắp xếp chèn) xây dựng mảng đã sắp xếp từng bước một. Nó lấy một phần tử từ phần chưa sắp xếp và chèn nó vào đúng vị trí trong phần đã sắp xếp, giống như cách bạn xếp các quân bài trên tay.</p>
+                </div>
+
+                <div class="theory-section">
+                    <span class="theory-title">2. NGUYÊN LÝ HOẠT ĐỘNG:</span>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>- <b style="color: var(--bright-green)">Key Selection:</b> Nhấc phần tử ở index <b>i</b> làm giá trị <b>Key</b>.</li>
+                        <li>- <b style="color: var(--bright-green)">Comparison:</b> So sánh Key với các số bên trái (phần đã sắp xếp).</li>
+                        <li>- <b style="color: var(--bright-green)">Shift:</b> Nếu số bên trái lớn hơn Key, dịch chuyển số đó sang phải.</li>
+                        <li>- <b style="color: var(--bright-green)">Insert:</b> Chèn Key vào ô trống cuối cùng sau khi dịch chuyển xong.</li>
                     </ul>
                 </div>
 
-                <div style="background: rgba(0, 20, 0, 0.5); border: 1px dashed #333; padding: 15px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 0.9rem;">
-                    <strong style="color: var(--bright-green)">VÍ DỤ MINH HỌA: [5, 1, 4, 2]</strong><br><br>
-                    Lượt 1: (5, 1, 4, 2) → (1, 5, 4, 2) → (1, 4, 5, 2) → (1, 4, 2, 5) <span style="color:#666">// 5 đã nổi</span><br>
-                    Lượt 2: (1, 4, 2, 5) → (1, 2, 4, 5) <span style="color:#666">// 4 đã nổi</span><br>
-                    Kết quả: [1, 2, 4, 5]
+                <div class="example-box">
+                    
+                    <strong style="color: var(--bright-green)">VÍ DỤ MINH HỌA (C++): [12, 11, 13, 5]</strong><br><br>
+                    - i=1, Key=11: 12 > 11 → Dịch 12 sang phải. Chèn 11 → <b style="color: white">[11, 12, 13, 5]</b><br>
+                    - i=2, Key=13: 12 < 13 → Giữ nguyên vị trí. Chèn 13 → <b style="color: white">[11, 12, 13, 5]</b><br>
+                    - i=3, Key=5: Dịch 13, 12, 11 sang phải. Chèn 5 → <b style="color: var(--bright-green)">[5, 11, 12, 13]</b>
                 </div>
 
-                <p><strong style="color: var(--matrix-green)">3. ĐẶC ĐIỂM:</strong><br>
-                - Độ phức tạp: <b>O(n²)</b> (Hiệu suất kém với dữ liệu lớn).<br>
-                - Tối ưu: Có thể dùng biến cờ (flag) để dừng sớm nếu mảng đã sắp xếp.</p>
+                <div class="theory-section">
+                    <span class="theory-title">3. ĐẶC ĐIỂM KỸ THUẬT:</span>
+                    <p>- Độ phức tạp: <b>O(n²)</b> (Xấu nhất), <b>O(n)</b> (Tốt nhất khi mảng đã sắp xếp).<br>
+                       - Ưu điểm: Hiệu quả với tập dữ liệu nhỏ, tiêu tốn cực ít bộ nhớ phụ.</p>
+                </div>
             </div>
 
-            <button class="btn" onclick="startPractice()" style="font-size: 1.2rem; padding: 15px 40px; margin-top: 10px;">
-                CHUYỂN SANG THỰC NGHIỆM
-            </button>
+            <button class="btn" onclick="startPractice()" style="font-size: 1.2rem; padding: 15px 40px;">BẮT ĐẦU THỰC NGHIỆM</button>
         </div>
     </div>
 
-    <!-- Cột bên trái: Game -->
     <div id="practice-screen">
-    <div class="main-stage">
-        <div id="terminal-header">
-            > PROTOCOL: BUBBLE_SORT_V1<br>
-            > STATUS: WAITING FOR USER INPUT
+        <div class="main-stage">
+            <div style="color: #444; margin-bottom: 10px;">> PROTOCOL: INSERTION_SORT_V1</div>
+            <div id="key-info">KEY: <span id="current-key-value" class="key-display">--</span></div>
+            <div id="array-display"></div>
+            <div id="hint-box" style="height: 40px; font-weight: bold; text-align: center;"></div>
+            <div>
+                <button class="btn" onclick="processAnswer(true)">DỊCH CHUYỂN (SHIFT)</button>
+                <button class="btn" onclick="processAnswer(false)">CHÈN VÀO ĐÂY (INSERT)</button>
+            </div>
         </div>
-
-        <div id="array-display"></div>
-
-        <div id="hint-box">Đang quét bộ nhớ...</div>
-
-        <div>
-            <button class="btn" onclick="processStep(true)">SWAP (Đổi chỗ)</button>
-            <button class="btn" onclick="processStep(false)">KEEP (Giữ nguyên)</button>
-        </div>
-
-        <div class="stats">
-            [ Pass (i): <span id="pass-count">0</span> | Index (j): <span id="idx-count">0</span> ]
-        </div>
-</div>
-
-    <!-- Cột bên phải: Log -->
-    <div class="log-sidebar" id="system-log">
-        <div class="log-entry">> SYSTEM_BOOT_COMPLETE...</div>
+        <div class="log-sidebar" id="system-log"></div>
     </div>
+
+    <div id="victory-overlay">
+        <div class="victory-content">
+            <h1 style="color: var(--bright-green); text-align: center; margin: 0;">MISSION ACCOMPLISHED</h1>
+            <div id="final-stats" style="text-align: center; color: #ccc; margin: 15px 0;"></div>
+            
+            <h3 style="color: var(--matrix-green)">> IMPLEMENTATION (Mã nguồn)</h3>
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchLang('cpp')">C++</button>
+                <button class="tab-btn" onclick="switchLang('java')">JAVA</button>
+                <button class="tab-btn" onclick="switchLang('js')">JS</button>
+                <button class="tab-btn" onclick="switchLang('py')">PYTHON</button>
+            </div>
+            <div class="code-box" id="code-display"></div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <button class="btn" onclick="location.reload()">RE-RUN PROTOCOL</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        let array = [];
-        let i = 0, j = 0;
-        let totalComparisons = 0;
-        let isComplete = false;
-
-        // --- HỆ THỐNG ÂM THANH (WEB AUDIO API) ---
+        let array = [], i = 1, j = 0, keyElement = null, totalComparisons = 0, isWaiting = false;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        const codeSnippets = {
+            cpp: `void insertionSort(int arr[], int n) {\n    for (int i = 1; i < n; i++) {\n        int key = arr[i], j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j--;\n        }\n        arr[j + 1] = key;\n    }\n}`,
+            java: `public void insertionSort(int[] arr) {\n    for (int i = 1; i < arr.length; i++) {\n        int key = arr[i], j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j--;\n        }\n        arr[j + 1] = key;\n    }\n}`,
+            js: `function insertionSort(arr) {\n    for (let i = 1; i < arr.length; i++) {\n        let key = arr[i], j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j--;\n        }\n        arr[j + 1] = key;\n    }\n}`,
+            py: `def insertion_sort(arr):\n    for i in range(1, len(arr)):\n        key = arr[i]\n        j = i - 1\n        while j >= 0 and arr[j] > key:\n            arr[j + 1] = arr[j]\n            j -= 1\n        arr[j + 1] = key`
+        };
 
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             const now = audioCtx.currentTime;
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            if (type === 'swap') {
-                // Âm thanh trượt lên (khi đổi chỗ thành công)
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.1);
-                osc.start(now);
-                osc.stop(now + 0.1);
-            } else if (type === 'keep') {
-                // Âm thanh ngắn, trầm (khi giữ nguyên)
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, now);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.05);
-                osc.start(now);
-                osc.stop(now + 0.05);
-            } else if (type === 'error') {
-                // Âm thanh rè (khi sai)
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(100, now);
-                osc.frequency.linearRampToValueAtTime(50, now + 0.3);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            }
-        }
-
-        const codeSnippets = {
-            java: `public void bubbleSort(int[] arr) {
-    int n = arr.length;
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                // Swap arr[j] and arr[j+1]
-                int temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
-            }
-        }
-    }
-}`,
-            js: `function bubbleSort(arr) {
-    let n = arr.length;
-    for (let i = 0; i < n - 1; i++) {
-        for (let j = 0; j < n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-            }
-        }
-    }
-    return arr;
-}`,
-            python: `def bubble_sort(arr):
-    n = len(arr)
-    for i in range(n):
-        for j in range(0, n-i-1):
-            if arr[j] > arr[j+1]:
-                arr[j], arr[j+1] = arr[j+1], arr[j]`,
-            cpp: `void bubbleSort(int arr[], int n) {
-    for (int i = 0; i < n-1; i++) {
-        for (int j = 0; j < n-i-1; j++) {
-            if (arr[j] > arr[j+1]) {
-                std::swap(arr[j], arr[j+1]);
-            }
-        }
-    }
-}`
-        };
-
-        function switchLang(lang) {
-            document.getElementById('code-display').innerText = codeSnippets[lang];
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.getAttribute('data-lang') === lang) btn.classList.add('active');
-            });
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'shift') { osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(500, now + 0.1); gain.gain.setValueAtTime(0.1, now); }
+            else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); gain.gain.setValueAtTime(0.1, now); }
+            else { osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); gain.gain.setValueAtTime(0.1, now); }
+            
+            osc.start(); osc.stop(now + 0.1);
         }
 
         function startPractice() {
             document.getElementById('theory-screen').style.display = 'none';
             document.getElementById('practice-screen').style.display = 'flex';
-            // Kích hoạt AudioContext khi người dùng tương tác lần đầu
-            if (audioCtx.state === 'suspended') audioCtx.resume();
             initGame();
         }
 
         function initGame() {
-            document.getElementById('victory-overlay').style.display = 'none';
-            document.getElementById('system-log').innerHTML = '<div class="log-entry">> SYSTEM_RESET...</div>';
             array = Array.from({length: 5}, () => Math.floor(Math.random() * 89) + 10);
-            i = 0; j = 0; totalComparisons = 0;
-            isComplete = false;
-            
-            addLog(`INIT: Mảng khởi tạo [ ${array.join(', ')} ]`, 'info');
-            addLog(`LOOP: Bắt đầu Pass i=0`, 'var');
-            
-            updateUI();
-            setHint("Nhiệm vụ: Nếu số bên TRÁI lớn hơn số bên PHẢI -> chọn SWAP.");
-        }
-
-        function addLog(msg, type = 'info') {
-            const logPanel = document.getElementById('system-log');
-            const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
-            
-            const time = new Date().toLocaleTimeString('vi-VN', {hour12: false, hour: "numeric", minute: "numeric", second: "numeric"});
-            entry.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
-            
-            logPanel.appendChild(entry);
-            logPanel.scrollTop = logPanel.scrollHeight; // Auto scroll xuống dưới
-        }
-
-        function updateUI() {
-            const container = document.getElementById('array-display');
-            container.innerHTML = '';
-
-            array.forEach((val, idx) => {
-                const node = document.createElement('div');
-                node.className = 'node';
-                node.setAttribute('data-index', idx); // Thêm attribute index
-                
-                // Đánh dấu cặp đang so sánh
-                if (!isComplete && (idx === j || idx === j + 1)) {
-                    node.classList.add('comparing');
-                }
-                // Đánh dấu các phần tử đã nằm đúng vị trí ở cuối mảng
-                if (idx > array.length - 1 - i) {
-                    node.classList.add('sorted');
-                }
-                node.innerText = val;
-                container.appendChild(node);
-            });
-
-            document.getElementById('pass-count').innerText = i;
-            document.getElementById('idx-count').innerText = j;
-        }
-
-        function setHint(txt, color = "#ccc") {
-            const h = document.getElementById('hint-box');
-            h.innerText = txt;
-            h.style.color = color;
-        }
-
-        function processStep(userSwap) {
-            if (isComplete) return;
-
-            const shouldSwap = array[j] > array[j+1];
-            totalComparisons++;
-
-            if (userSwap === shouldSwap) {
-                if (shouldSwap) {
-                    playSound('swap'); // Hiệu ứng đổi chỗ
-                    addLog(`COMPARE: ${array[j]} > ${array[j+1]} -> TRUE`, 'info');
-                    addLog(`ACTION: SWAP index [${j}] <-> [${j+1}]`, 'success');
-
-                    const nodes = document.querySelectorAll('.node');
-                    nodes[j].classList.add('swapping');
-                    nodes[j+1].classList.add('swapping');
-                    
-                    setTimeout(() => {
-                        [array[j], array[j+1]] = [array[j+1], array[j]];
-                        addLog(`UPDATE: Mảng mới [ ${array.join(', ')} ]`, 'info');
-                        advanceLogic();
-                    }, 400);
-                } else {
-                    playSound('keep'); // Hiệu ứng giữ nguyên
-                    addLog(`COMPARE: ${array[j]} <= ${array[j+1]} -> FALSE`, 'info');
-                    addLog(`ACTION: KEEP (Giữ nguyên vị trí)`, 'info');
-                    advanceLogic();
-                }
-                setHint("Chính xác. Tiếp tục phân tích...", "var(--matrix-green)");
-            } else {
-                playSound('error'); // Hiệu ứng sai
-                addLog(`ERROR: Người dùng chọn sai thao tác tại j=${j}`, 'err');
-                setHint(shouldSwap ? "SAI: Số bên trái lớn hơn, phải SWAP!" : "SAI: Số bên trái nhỏ hơn, nên KEEP!", "#ff4444");
-                // Rung nhẹ màn hình khi sai
-                const practiceScreen = document.getElementById('practice-screen');
-                practiceScreen.style.transform = "translateX(5px)";
-                setTimeout(() => practiceScreen.style.transform = "none", 50);
-            }
-        }
-
-        function advanceLogic() {
-            j++;
-            // Kết thúc 1 lượt quét (pass)
-            if (j >= array.length - 1 - i) {
-                j = 0;
-                addLog(`INFO: Hoàn thành Pass i=${i}. Phần tử lớn nhất đã nổi lên cuối.`, 'var');
-                i++;
-                if (i < array.length - 1) addLog(`LOOP: Tăng i lên ${i}. Reset j về 0.`, 'var');
-            }
-
-            // Kết thúc toàn bộ thuật toán
-            if (i >= array.length - 1) {
-                isComplete = true;
-                addLog(`SUCCESS: Thuật toán hoàn tất. Mảng đã sắp xếp.`, 'success');
-                showVictory();
-            }
-            updateUI();
-        }
-
-        function showVictory() {
-            // Hiệu ứng âm thanh chiến thắng (Arpeggio)
-            const now = audioCtx.currentTime;
-            [440, 554, 659, 880].forEach((freq, i) => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.value = freq;
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                gain.gain.setValueAtTime(0.1, now + i * 0.1);
-                gain.gain.linearRampToValueAtTime(0, now + i * 0.1 + 0.3);
-                osc.start(now + i * 0.1);
-                osc.stop(now + i * 0.1 + 0.3);
-            });
-
-            document.getElementById('victory-overlay').style.display = 'flex';
-            document.getElementById('final-stats').innerHTML = `[ STATUS: SORTED ] | [ COMPARISONS: ${totalComparisons} ]`;
+            i = 1; totalComparisons = 0; isWaiting = false;
+            document.getElementById('system-log').innerHTML = '';
+            addLog(`HỆ THỐNG: Khởi tạo mảng [${array.join(', ')}]`, 'success');
+            startInsertionPass();
             switchLang('cpp');
         }
 
-        function closeOverlay() {
-            document.getElementById('victory-overlay').style.display = 'none';
+        function startInsertionPass() {
+            if (i >= array.length) { showVictory(); return; }
+            keyElement = array[i];
+            array[i] = null;
+            j = i - 1;
+            isWaiting = false;
+            addLog(`Vòng lặp i=${i}: Key = ${keyElement}`);
+            updateUI();
+            updateHint();
         }
 
-        function setHint(txt, color = "#ccc") {
+        function processAnswer(userWantsToShift) {
+            if (isWaiting || i >= array.length) return;
+            const shouldShift = (j >= 0 && array[j] > keyElement);
+
+            if (userWantsToShift === shouldShift) {
+                totalComparisons++;
+                if (shouldShift) {
+                    playSound('shift');
+                    array[j + 1] = array[j];
+                    array[j] = null;
+                    j--;
+                    addLog(`Dịch chuyển ${array[j+1]} sang phải.`);
+                } else {
+                    playSound('insert');
+                    array[j + 1] = keyElement;
+                    addLog(`Chèn Key ${keyElement} vào index ${j+1}.`, 'success');
+                    isWaiting = true;
+                    updateUI(j + 1);
+                    i++;
+                    setTimeout(startInsertionPass, 800);
+                    return;
+                }
+                updateUI();
+                updateHint();
+            } else {
+                playSound('error');
+                addLog(`SAI THAO TÁC tại index ${j}`, 'err');
+            }
+        }
+
+        function updateUI(insertedIdx = -1) {
+            const container = document.getElementById('array-display');
+            container.innerHTML = '';
+            document.getElementById('current-key-value').innerText = keyElement || "--";
+            
+            array.forEach((val, idx) => {
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.setAttribute('data-index', idx);
+                if (val === null) {
+                    node.classList.add('hole');
+                    node.innerText = keyElement;
+                } else {
+                    node.innerText = val;
+                    if (idx < i) node.classList.add('sorted');
+                }
+                if (idx === j && !isWaiting) node.classList.add('comparing');
+                if (idx === insertedIdx) node.classList.add('inserted');
+                container.appendChild(node);
+            });
+        }
+
+        function updateHint() {
             const h = document.getElementById('hint-box');
-            h.innerText = txt;
-            h.style.color = color;
+            if (j >= 0 && array[j] > keyElement) {
+                h.innerText = `SO SÁNH: ${array[j]} > ${keyElement}? ĐÚNG -> Bấm SHIFT`;
+                h.style.color = "var(--teal)";
+            } else {
+                h.innerText = `VỊ TRÍ HỢP LÝ! Bấm INSERT để đưa ${keyElement} vào index ${j+1}`;
+                h.style.color = "var(--bright-green)";
+            }
         }
 
-        // Khởi tạo luồng: Luôn hiện Lý thuyết trước, ẩn Game đi
-        window.onload = function() {
-            document.getElementById('theory-screen').style.display = 'flex';
-            document.getElementById('practice-screen').style.display = 'none';
-            document.getElementById('victory-overlay').style.display = 'none';
-        };
+        function showVictory() {
+            document.getElementById('victory-overlay').style.display = 'flex';
+            document.getElementById('final-stats').innerText = `Tổng số lần so sánh: ${totalComparisons}`;
+        }
+
+        function switchLang(lang) {
+            document.getElementById('code-display').innerText = codeSnippets[lang];
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(lang)));
+        }
+
+        function addLog(msg, type) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerText = `> ${msg}`;
+            document.getElementById('system-log').prepend(entry);
+        }
     </script>
 </body>
 </html>

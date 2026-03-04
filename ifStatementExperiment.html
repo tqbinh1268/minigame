@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>IF Statement Protocol</title>
@@ -9,7 +10,9 @@
             --bright-green: #00FF41;
             --dark-bg: #050a05;
             --font-main: 'Consolas', 'Courier New', monospace;
-            --teal: #20c997; /* Added for consistency */
+            --gold: #ffd700; /* Added for consistency with index.html */
+            --teal: #20c997;
+            /* Added for consistency */
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent: #3b82f6;
@@ -34,7 +37,10 @@
         #victory-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.9);
             z-index: 100;
             align-items: flex-start;
@@ -91,7 +97,8 @@
             font-size: 0.8rem;
         }
 
-        .tab-btn:hover, .tab-btn.active {
+        .tab-btn:hover,
+        .tab-btn.active {
             border-color: var(--matrix-green);
             color: var(--matrix-green);
             background: rgba(0, 143, 17, 0.1);
@@ -100,7 +107,10 @@
         /* Màn hình Lý thuyết */
         #theory-screen {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: var(--dark-bg);
             z-index: 50;
             display: flex;
@@ -158,7 +168,7 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
-            box-shadow: inset 5px 0 15px rgba(0,0,0,0.5);
+            box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.5);
         }
 
         #terminal-header {
@@ -229,7 +239,11 @@
             color: #000;
         }
 
-        .stats { margin-top: 20px; font-size: 0.8rem; opacity: 0.6; }
+        .stats {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
 
         /* Style cho từng dòng log */
         .log-entry {
@@ -239,44 +253,78 @@
             padding-bottom: 2px;
             word-wrap: break-word;
         }
-        .log-time { color: #555; margin-right: 5px; font-size: 0.7rem; }
-        .log-info { color: #ccc; }
-        .log-warn { color: #fbbf24; }
-        .log-err { color: #ff4444; }
-        .log-success { color: var(--bright-green); font-weight: bold; }
-        .log-var { color: #22d3ee; } /* Màu cyan cho biến số */
+
+        .log-time {
+            color: #555;
+            margin-right: 5px;
+            font-size: 0.7rem;
+        }
+
+        .log-info {
+            color: #ccc;
+        }
+
+        .log-warn {
+            color: #fbbf24;
+        }
+
+        .log-err {
+            color: #ff4444;
+        }
+
+        .log-success {
+            color: var(--bright-green);
+            font-weight: bold;
+        }
+
+        .log-var {
+            color: #22d3ee;
+        }
+
+        /* Màu cyan cho biến số */
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div id="victory-overlay">
         <div class="victory-content">
             <div class="victory-text">PROTOCOL COMPLETE</div>
             <div id="final-stats" style="text-align: center; margin-bottom: 20px; color: #ccc;"></div>
-            
+
             <hr style="border-color: #1a3a1a; margin: 20px 0;">
 
             <h3 style="color: var(--bright-green); margin-bottom: 10px;">> KNOWLEDGE_BASE: IF STATEMENT</h3>
             <p style="color: #ccc; line-height: 1.5; font-size: 0.9rem;">
-                Lệnh IF là một cấu trúc điều khiển cơ bản trong lập trình, cho phép thực thi một khối mã chỉ khi một điều kiện cụ thể là ĐÚNG (TRUE). Nếu điều kiện là SAI (FALSE), khối mã đó sẽ bị bỏ qua.
+                Lệnh IF là một cấu trúc điều khiển cơ bản trong lập trình, cho phép thực thi một khối mã chỉ khi một
+                điều kiện cụ thể là ĐÚNG (TRUE). Nếu điều kiện là SAI (FALSE), khối mã đó sẽ bị bỏ qua.
             </p>
 
             <h4 style="margin-top: 20px; color: var(--matrix-green);">> PSEUDO_CODE (Mã giả)</h4>
             <div class="code-box" style="color: #ccc;">
-IF (condition IS TRUE) THEN
-    // Execute this block of code
-END IF
+                IF (condition IS TRUE) THEN
+                // Execute this block of code
+                END IF
 
-IF (condition IS TRUE) THEN
-    // Execute this block
-ELSE
-    // Execute this block instead
-END IF</div>
+                IF (condition IS TRUE) THEN
+                // Execute this block
+                ELSE
+                // Execute this block instead
+                END IF</div>
 
             <h4 style="margin-top: 20px; color: var(--matrix-green);">> IMPLEMENTATION (Mã nguồn)</h4>
             <div class="tab-container">
@@ -299,39 +347,46 @@ END IF</div>
         <div class="theory-card">
             <h1 style="color: var(--bright-green); margin-bottom: 10px;">IF STATEMENT PROTOCOL</h1>
             <p style="color: #666; font-size: 0.9rem;">> LOADING KNOWLEDGE BASE...</p>
-            
-            <div style="margin: 20px 0; color: #ccc; line-height: 1.6; text-align: left; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+
+            <div
+                style="margin: 20px 0; color: #ccc; line-height: 1.6; text-align: left; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
                 <p><strong style="color: var(--matrix-green)">1. KHÁI NIỆM:</strong><br>
-                Lệnh `if` (nếu) là một trong những cấu trúc điều khiển cơ bản nhất trong lập trình, cho phép chương trình đưa ra quyết định dựa trên một điều kiện. Nó kiểm tra xem một biểu thức logic có đúng (TRUE) hay sai (FALSE) và thực hiện các hành động tương ứng.</p>
-                
+                    Lệnh `if` (nếu) là một trong những cấu trúc điều khiển cơ bản nhất trong lập trình, cho phép chương
+                    trình đưa ra quyết định dựa trên một điều kiện. Nó kiểm tra xem một biểu thức logic có đúng (TRUE)
+                    hay sai (FALSE) và thực hiện các hành động tương ứng.</p>
+
                 <div class="theory-step">
                     <strong style="color: var(--matrix-green)">2. CÚ PHÁP CƠ BẢN:</strong>
                     <ul style="list-style: none; padding-left: 10px; margin-top: 5px;">
                         <li>- `if (điều_kiện)`: Nếu `điều_kiện` là TRUE, khối lệnh bên trong sẽ được thực thi.</li>
-                        <li>- `else`: Nếu `điều_kiện` của `if` là FALSE, khối lệnh bên trong `else` sẽ được thực thi.</li>
+                        <li>- `else`: Nếu `điều_kiện` của `if` là FALSE, khối lệnh bên trong `else` sẽ được thực thi.
+                        </li>
                         <li>- `else if`: Cho phép kiểm tra nhiều điều kiện tuần tự.</li>
                     </ul>
                 </div>
 
-                <div style="background: rgba(0, 20, 0, 0.5); border: 1px dashed #333; padding: 15px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 0.9rem;">
+                <div
+                    style="background: rgba(0, 20, 0, 0.5); border: 1px dashed #333; padding: 15px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 0.9rem;">
                     <strong style="color: var(--bright-green)">VÍ DỤ MINH HỌA (C++):</strong><br><br>
                     <span style="color: #a5d6a7;">int score = 75;</span><br>
                     <span style="color: #a5d6a7;">if (score >= 90) {</span><br>
-                    <span style="color: #a5d6a7;">    std::cout << "Excellent!" << std::endl;</span><br>
-                    <span style="color: #a5d6a7;">} else if (score >= 70) {</span><br>
-                    <span style="color: #a5d6a7;">    std::cout << "Good!" << std::endl;</span><br>
-                    <span style="color: #a5d6a7;">} else {</span><br>
-                    <span style="color: #a5d6a7;">    std::cout << "Needs improvement." << std::endl;</span><br>
-                    <span style="color:#666">// Output: Good!</span>
+                    <span style="color: #a5d6a7;"> std::cout << "Excellent!" << std::endl;</span><br>
+                            <span style="color: #a5d6a7;">} else if (score >= 70) {</span><br>
+                            <span style="color: #a5d6a7;"> std::cout << "Good!" << std::endl;</span><br>
+                                    <span style="color: #a5d6a7;">} else {</span><br>
+                                    <span style="color: #a5d6a7;"> std::cout << "Needs improvement." <<
+                                            std::endl;</span><br>
+                                            <span style="color:#666">// Output: Good!</span>
                 </div>
 
                 <p><strong style="color: var(--matrix-green)">3. CÁC TOÁN TỬ SO SÁNH THƯỜNG DÙNG:</strong><br>
-                - `==` (bằng), `!=` (không bằng)<br>
-                - `>` (lớn hơn), `<` (nhỏ hơn)<br>
-                - `>=` (lớn hơn hoặc bằng), `<=` (nhỏ hơn hoặc bằng)</p>
+                    - `==` (bằng), `!=` (không bằng)<br>
+                    - `>` (lớn hơn), `<` (nhỏ hơn)<br>
+                        - `>=` (lớn hơn hoặc bằng), `<=` (nhỏ hơn hoặc bằng)</p>
             </div>
 
-            <button class="btn" onclick="startPractice()" style="font-size: 1.2rem; padding: 15px 40px; margin-top: 10px;">
+            <button class="btn" onclick="startPractice()"
+                style="font-size: 1.2rem; padding: 15px 40px; margin-top: 10px;">
                 CHUYỂN SANG THỰC NGHIỆM
             </button>
         </div>
@@ -359,7 +414,7 @@ END IF</div>
             <div id="condition-display">
                 <span id="current-condition"></span>
             </div>
-            
+
             <div id="hint-box">Đánh giá điều kiện trên là ĐÚNG hay SAI?</div>
 
             <div>
@@ -370,7 +425,7 @@ END IF</div>
             <div class="stats">
                 [ Correct: <span id="correct-count">0</span> | Total: <span id="total-count">0</span> ]
             </div>
-</div>
+        </div>
 
         <!-- Cột bên phải: Log -->
         <div class="log-sidebar" id="system-log">
@@ -472,7 +527,7 @@ int main() {
             document.getElementById('code-display').innerText = codeSnippets[lang];
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
-                if(btn.getAttribute('data-lang') === lang) btn.classList.add('active');
+                if (btn.getAttribute('data-lang') === lang) btn.classList.add('active');
             });
         }
 
@@ -523,10 +578,10 @@ int main() {
             const logPanel = document.getElementById('system-log');
             const entry = document.createElement('div');
             entry.className = `log-entry log-${type}`;
-            
-            const time = new Date().toLocaleTimeString('vi-VN', {hour12: false, hour: "numeric", minute: "numeric", second: "numeric"});
+
+            const time = new Date().toLocaleTimeString('vi-VN', { hour12: false, hour: "numeric", minute: "numeric", second: "numeric" });
             entry.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
-            
+
             logPanel.appendChild(entry);
             logPanel.scrollTop = logPanel.scrollHeight;
         }
@@ -600,12 +655,13 @@ int main() {
         function closeOverlay() {
             document.getElementById('victory-overlay').style.display = 'none';
         }
-        
-        window.onload = function() {
+
+        window.onload = function () {
             document.getElementById('theory-screen').style.display = 'flex';
             document.getElementById('practice-screen').style.display = 'none';
             document.getElementById('victory-overlay').style.display = 'none';
         };
     </script>
 </body>
+
 </html>
