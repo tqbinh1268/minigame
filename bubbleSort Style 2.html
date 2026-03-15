@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Mastery - Professional Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            margin: 0; font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #eef2ff, #fdf2f8, #f0fdf4);
+            color: var(--text-main); height: 100vh; overflow: hidden; display: flex;
+        }
+
+        /* --- SCREENS --- */
+        #theory-screen, #victory-overlay {
+            position: fixed; inset: 0; background: inherit; z-index: 500;
+            display: flex; justify-content: center; align-items: center; padding: 20px;
+        }
+
+        #practice-screen { display: none; width: 100%; height: 100%; flex-direction: row; }
+
+        .glass-card {
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            padding: 40px; border-radius: 32px; max-width: 850px; width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.7); text-align: center;
+        }
+
+        /* --- LAYOUT --- */
+        .sidebar {
+            width: 300px; background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(10px); border-right: 1px solid rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; padding: 24px;
+        }
+
+        .main-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+
+        /* --- ARRAY ELEMENTS --- */
+        #array-display { display: flex; gap: 15px; margin: 50px 0; height: 120px; align-items: center; }
+        
+        .node {
+            width: 75px; height: 75px; background: white;
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; font-weight: 800; color: var(--primary);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+            border: 3px solid transparent; position: relative;
+        }
+        
+        .node.comparing { border-color: var(--secondary); transform: translateY(-15px); box-shadow: 0 20px 25px rgba(245, 158, 11, 0.2); }
+        .node.swapping { background: var(--secondary); color: white; transform: scale(1.1) translateY(-15px); }
+        .node.sorted { background: #f1f5f9; color: #cbd5e1; box-shadow: none; border: none; }
+
+        /* --- UI COMPONENTS --- */
+        .btn {
+            padding: 16px 32px; border-radius: 16px; border: none;
+            font-size: 1rem; font-weight: 700; cursor: pointer; margin: 0 8px;
+        }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3); }
+        
+        .btn-ghost { background: white; color: var(--text-main); border: 1px solid #e2e8f0; }
+        .btn-ghost:hover { background: #f8fafc; }
+
+        /* --- CODE TAB SYSTEM --- */
+        .tab-header { display: flex; gap: 4px; background: #0f172a; padding: 12px 12px 0; border-radius: 16px 16px 0 0; }
+        .tab-btn {
+            background: transparent; color: #64748b; border: none; padding: 8px 20px;
+            cursor: pointer; font-weight: 600; border-radius: 8px 8px 0 0;
+        }
+        .tab-btn.active { background: #1e293b; color: #3b82f6; }
+        .code-box { 
+            background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 0 0 16px 16px;
+            font-family: 'JetBrains Mono', monospace; text-align: left; font-size: 0.9rem; line-height: 1.6;
+            min-height: 280px; white-space: pre-wrap;
+        }
+
+        .log-entry { padding: 10px 15px; border-radius: 12px; margin-bottom: 8px; font-size: 0.85rem; background: white; border-left: 4px solid var(--primary); }
+        .log-success { border-left-color: var(--success); background: #f0fdf4; }
+        .log-err { border-left-color: var(--error); background: #fef2f2; }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+    </style>
+</head>
+<body>
+
+    <div id="theory-screen">
+        <div class="glass-card">
+            <h1 style="color: var(--primary); font-size: 2.5rem; margin: 0;">Bubble Sort Protocol</h1>
+            <p style="color: var(--text-sub); margin-bottom: 30px;">Thuật toán sắp xếp cơ bản: Đưa phần tử lớn nhất "nổi" lên cuối mảng.</p>
+            
+            <div style="text-align: left; background: white; padding: 25px; border-radius: 24px; margin-bottom: 30px; border-left: 6px solid var(--primary);">
+                <b style="display: block; margin-bottom: 10px;">Giao thức vận hành:</b>
+                1. So sánh cặp <b>arr[j]</b> và <b>arr[j+1]</b>.<br>
+                2. Nếu số đứng trước lớn hơn số đứng sau &rarr; <b>SWAP</b> (Hoán đổi).<br>
+                3. Lặp lại cho đến khi toàn bộ mảng được sắp xếp.
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="startApp()">BẮT ĐẦU HUẤN LUYỆN</button>
+        </div>
+    </div>
+
+    <div id="practice-screen">
+        <aside class="sidebar">
+            <h3 style="font-size: 0.75rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px;">System Activity</h3>
+            <div id="system-log" style="flex:1; overflow-y:auto;"></div>
+        </aside>
+
+        <main class="main-stage" id="main-stage">
+            <div id="hint-box" style="background: white; padding: 12px 30px; border-radius: 50px; font-weight: 800; color: var(--secondary); box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px;">
+                ĐANG QUÉT DỮ LIỆU...
+            </div>
+
+            <div id="array-display"></div>
+
+            <div style="display: flex;">
+                <button class="btn btn-primary" onclick="handleAction(true)">HOÁN ĐỔI (SWAP)</button>
+                <button class="btn btn-ghost" onclick="handleAction(false)">BỎ QUA (SKIP)</button>
+            </div>
+            
+            <p style="margin-top: 40px; color: var(--text-sub); font-size: 0.9rem; font-weight: 600;">
+                Tiến độ: <span id="progress-text" style="color: var(--primary);">0</span> lượt so sánh
+            </p>
+        </main>
+    </div>
+
+    <div id="victory-overlay" style="display: none;">
+        <div class="glass-card" style="max-width: 900px;">
+            <h1 style="font-size: 2.2rem; color: var(--success); margin: 0;">Mission Accomplished! 🏆</h1>
+            <p id="final-stats" style="margin: 15px 0; font-weight: 600; color: var(--text-sub);"></p>
+            
+            <div class="code-container" style="margin-top: 25px;">
+                <div class="tab-header">
+                    <button class="tab-btn active" id="btn-cpp" onclick="switchLang('cpp')">C++</button>
+                    <button class="tab-btn" id="btn-java" onclick="switchLang('java')">Java</button>
+                    <button class="tab-btn" id="btn-python" onclick="switchLang('python')">Python</button>
+                </div>
+                <div class="code-box" id="code-display"></div>
+            </div>
+
+            <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 30px; padding: 16px 60px;">RE-RUN</button>
+        </div>
+    </div>
+
+    <script>
+        let array = [], i = 0, j = 0, totalComparisons = 0, isAnimating = false;
+        let audioCtx = null;
+
+        const codes = {
+            cpp: `void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // Hoán đổi giá trị
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}`,
+            java: `public static void bubbleSort(int[] arr) {
+    int n = arr.length;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}`,
+            python: `def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                # Hoán đổi cực nhanh
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]`
+        };
+
+        function resumeAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(isCorrect) {
+            resumeAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(isCorrect ? 880 : 220, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(isCorrect ? 440 : 110, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function startApp() {
+            resumeAudio();
+            document.getElementById('theory-screen').style.display = 'none';
+            document.getElementById('practice-screen').style.display = 'flex';
+            initGame();
+        }
+
+        function initGame() {
+            array = Array.from({length: 5}, () => Math.floor(Math.random() * 80) + 10);
+            i = 0; j = 0; totalComparisons = 0;
+            addLog(`Khởi tạo mảng: [${array.join(', ')}]`, 'success');
+            updateUI();
+        }
+
+        function handleAction(userWantsSwap) {
+            if (isAnimating || i >= array.length - 1) return;
+            resumeAudio();
+
+            const shouldSwap = array[j] > array[j + 1];
+            totalComparisons++;
+            document.getElementById('progress-text').innerText = totalComparisons;
+
+            if (userWantsSwap === shouldSwap) {
+                playSound(true);
+                if (shouldSwap) {
+                    [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                    addLog(`Swap: ${array[j+1]} ↔ ${array[j]}`);
+                    animateSwap();
+                } else {
+                    addLog(`Skip: ${array[j]} < ${array[j+1]}`, 'success');
+                    nextStep();
+                }
+            } else {
+                playSound(false);
+                addLog(`Lỗi: ${array[j]} ${shouldSwap ? '>' : '<'} ${array[j+1]}`, 'err');
+                document.getElementById('main-stage').classList.add('shake');
+                setTimeout(() => document.getElementById('main-stage').classList.remove('shake'), 400);
+            }
+        }
+
+        function animateSwap() {
+            isAnimating = true;
+            updateUI(true);
+            setTimeout(() => {
+                isAnimating = false;
+                nextStep();
+            }, 600);
+        }
+
+        function nextStep() {
+            j++;
+            if (j >= array.length - i - 1) {
+                addLog(`Cố định giá trị: ${array[j]}`, 'success');
+                j = 0;
+                i++;
+            }
+            if (i >= array.length - 1) showVictory();
+            else updateUI();
+        }
+
+        function updateUI(swapping = false) {
+            const container = document.getElementById('array-display');
+            container.innerHTML = '';
+            
+            array.forEach((val, idx) => {
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.innerText = val;
+                if (idx === j || idx === j + 1) node.classList.add('comparing');
+                if (swapping && (idx === j || idx === j + 1)) node.classList.add('swapping');
+                if (idx >= array.length - i) node.classList.add('sorted');
+                container.appendChild(node);
+            });
+
+            document.getElementById('hint-box').innerText = `SO SÁNH: ${array[j]} > ${array[j+1]}?`;
+        }
+
+        function addLog(msg, type) {
+            const log = document.getElementById('system-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type ? 'log-'+type : ''}`;
+            entry.innerText = `> ${msg}`;
+            log.prepend(entry);
+        }
+
+        function switchLang(lang) {
+            document.getElementById('code-display').innerText = codes[lang];
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+        }
+
+        function showVictory() {
+            document.getElementById('practice-screen').style.display = 'none';
+            document.getElementById('victory-overlay').style.display = 'flex';
+            document.getElementById('final-stats').innerText = `Hoàn thành sắp xếp sau ${totalComparisons} lượt thực thi.`;
+            switchLang('cpp');
+        }
+    </script>
+</body>
+</html>

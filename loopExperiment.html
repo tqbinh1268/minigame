@@ -678,6 +678,7 @@ int main() {
                     
                     addLog(`LOOP_STEP: i thay đổi từ ${prevI} thành ${currentIValue}.`, 'info');
                     currentLoopIteration++;
+                    updateUI();
                     setTimeout(generateForLoopStep, 1000); // Next step of same loop
                 } else {
                     // If 'while' loop, or 'for' loop terminates, or 'for' loop max iterations reached, generate new scenario

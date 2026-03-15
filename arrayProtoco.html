@@ -2,162 +2,167 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Array Protocol - Memory Mapping</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array Protocol - Modern Memory Mapping</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --matrix-green: #008f11;
-            --bright-green: #00FF41;
-            --dark-bg: #050a05;
-            --font-main: 'Consolas', 'Courier New', monospace;
-            --cyan: #06b6d4;
-            --purple: #a855f7;
-            --gold: #ffd700; /* Added for consistency with index.html */
+            --primary: #0ea5e9;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --bg: #f0f4f8;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #1e293b;
+            --text-sub: #64748b;
         }
 
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
         body {
-            background-color: var(--dark-bg);
-            color: var(--matrix-green);
-            font-family: var(--font-main);
-            display: flex;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            margin: 0; font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #e0f2fe, #f5f3ff);
+            color: var(--text-main); display: flex; height: 100vh; overflow: hidden;
         }
 
         /* --- SCREENS --- */
         #theory-screen, #victory-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--dark-bg); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px;
+            position: fixed; inset: 0; background: inherit; z-index: 200;
+            display: flex; justify-content: center; align-items: center; padding: 20px;
         }
 
-        #practice-screen { display: none; width: 100%; height: 100%; flex-direction: row; }
+        #practice-screen { display: none; width: 100%; height: 100%; }
 
-        .card, .mission-box {
-            border: 1px solid var(--matrix-green);
-            padding: 30px; max-width: 850px; width: 90%;
-            background: rgba(0, 20, 0, 0.95);
-            box-shadow: 0 0 20px rgba(0, 143, 17, 0.2);
-            text-align: center;
+        .glass-card {
+            background: var(--card-bg); backdrop-filter: blur(12px);
+            padding: 40px; border-radius: 32px; max-width: 800px; width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.7); text-align: center;
         }
 
         /* --- LAYOUT --- */
-        .main-stage {
-            flex: 7; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            border-right: 1px solid #1a3a1a;
+        .sidebar {
+            width: 320px; background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px); border-right: 1px solid rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; padding: 24px;
         }
 
-        .log-sidebar {
-            flex: 3; background: #000; padding: 20px;
-            overflow-y: auto; font-size: 0.85rem;
-            border-left: 1px solid var(--matrix-green);
+        .main-stage {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px;
         }
 
         /* --- ARRAY VISUAL --- */
-        .array-container { display: flex; gap: 15px; margin: 40px 0; }
+        .array-container { display: flex; gap: 12px; margin: 50px 0; }
         .array-cell {
-            width: 75px; height: 75px; border: 2px solid var(--matrix-green);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem; position: relative; background: rgba(0, 30, 0, 0.6);
-            transition: all 0.3s;
+            width: 85px; height: 85px; background: white;
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 800; color: var(--primary);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.03); position: relative;
+            border: 2px solid transparent;
         }
-        .array-cell.active { border-color: var(--bright-green); color: var(--bright-green); box-shadow: 0 0 15px var(--bright-green); }
-        .index-label { position: absolute; top: -25px; font-size: 0.85rem; color: var(--cyan); }
+        .array-cell.active { 
+            border-color: var(--success); background: #ecfdf5; 
+            transform: scale(1.1); box-shadow: 0 15px 30px rgba(16, 185, 129, 0.2);
+        }
+        .index-label {
+            position: absolute; top: -30px; font-size: 0.75rem; 
+            font-weight: 700; color: var(--text-sub); text-transform: uppercase;
+        }
 
         /* --- UI ELEMENTS --- */
         .btn {
-            background: transparent; color: var(--matrix-green);
-            border: 1px solid var(--matrix-green);
-            padding: 12px 25px; cursor: pointer;
-            font-family: var(--font-main); text-transform: uppercase;
-            transition: 0.2s;
+            padding: 16px 32px; border-radius: 16px; border: none;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        .btn-gold { color: var(--gold); border-color: var(--gold); }
-        }
-        .btn:hover { background: var(--matrix-green); color: #000; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3); }
 
         input {
-            background: #000; border: 1px solid var(--matrix-green);
-            color: var(--bright-green); padding: 10px;
-            font-family: inherit; width: 150px; text-align: center; font-size: 1.2rem;
+            background: white; border: 2px solid #e2e8f0;
+            padding: 16px; border-radius: 16px; font-size: 1.2rem;
+            width: 180px; text-align: center; font-family: inherit; font-weight: 600;
+            margin-right: 10px;
         }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
 
         /* --- TABS & CODE --- */
-        .tab-container { display: flex; gap: 2px; margin-top: 20px; }
         .tab-btn {
-            background: #111; border: 1px solid #333; color: #666;
-            padding: 8px 20px; cursor: pointer; font-family: var(--font-main);
+            background: transparent; border: none; padding: 10px 20px;
+            cursor: pointer; font-weight: 700; color: var(--text-sub);
         }
-        .tab-btn.active { border-color: var(--matrix-green); color: var(--bright-green); background: #000; border-bottom: none; }
+        .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
         .code-box { 
-            background: #050505; border: 1px solid #333; padding: 15px; 
-            color: #a5d6a7; font-size: 0.85rem; text-align: left;
-            white-space: pre-wrap; margin-top: 0; min-height: 200px;
+            background: #1e293b; color: #f8fafc; padding: 25px; 
+            border-radius: 24px; font-family: 'JetBrains Mono', monospace; 
+            text-align: left; white-space: pre-wrap; margin-top: 15px; font-size: 0.9rem;
         }
 
-        .stats-grid { display: flex; justify-content: center; gap: 40px; margin: 20px 0; color: #ccc; }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px dashed #1a3a1a; padding: 2px 0; }
-        .log-success { color: var(--bright-green); }
-        .log-err { color: #ff4444; }
+        .log-entry { 
+            padding: 10px; border-radius: 12px; margin-bottom: 8px; 
+            font-size: 0.85rem; background: white; border-left: 4px solid var(--primary);
+        }
+        .log-success { border-left-color: var(--success); color: #065f46; background: #f0fdf4; }
+        .log-err { border-left-color: #ef4444; color: #991b1b; background: #fef2f2; }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
 
     <div id="theory-screen">
-        <div class="card">
-            <h1 style="color: var(--bright-green)">> ARRAY_MEMORY_PROTOCOL</h1>
-            <div style="text-align: left; color: #ccc; line-height: 1.6; margin: 20px 0;">
-                <p><strong style="color: var(--bright-green)">1. BẢN CHẤT:</strong> Mảng là một dãy các ô nhớ nằm **liên tiếp** nhau.</p>
-                <p><strong style="color: var(--bright-green)">2. CHỈ SỐ (INDEX):</strong> Dùng để định vị ô nhớ, luôn bắt đầu từ <span style="color: var(--cyan)">0</span>.</p>
-                <p><strong style="color: var(--bright-green)">3. GIÁ TRỊ (VALUE):</strong> Là nội dung nằm bên trong ô nhớ tại chỉ số đó.</p>
+        <div class="glass-card">
+            <h1 style="color: var(--primary); font-size: 2.2rem; margin-top:0;">Memory Mapping Protocol</h1>
+            <div style="text-align: left; margin: 30px 0; color: var(--text-sub);">
+                <div style="background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid var(--primary);">
+                    <b style="color: var(--text-main);">1. Cấu trúc tuyến tính:</b> Mảng là một chuỗi các ô nhớ liền kề.
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid var(--secondary);">
+                    <b style="color: var(--text-main);">2. Chỉ số thông minh:</b> Truy xuất bất kỳ ô nào chỉ tốn <b>O(1)</b> thời gian.
+                </div>
             </div>
-            
-            <button class="btn" onclick="startPractice()">BẮT ĐẦU THỰC NGHIỆM</button>
+            <button class="btn btn-primary" style="width: 100%;" onclick="startPractice()">BẮT ĐẦU THỰC NGHIỆM</button>
         </div>
     </div>
 
     <div id="practice-screen">
-        <div class="main-stage">
-            <h2 style="color: var(--bright-green)">> MEMORY_ACCESS_MODE</h2>
+        <aside class="sidebar">
+            <h3 style="font-size: 0.8rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px;">System Logs</h3>
+            <div id="system-log" style="flex:1; overflow-y:auto;"></div>
+        </aside>
+
+        <main class="main-stage">
+            <div style="background: white; padding: 10px 25px; border-radius: 50px; font-weight: 800; color: var(--secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                TRUY XUẤT: array[<span id="target-index" style="color: var(--primary);">?</span>]
+            </div>
+
             <div class="array-container" id="array-visual"></div>
             
-            <div id="target-command" style="font-size: 1.8rem; color: var(--purple); margin-bottom: 20px;">
-                CMD: array[<span id="target-index">?</span>]
+            <div id="action-area">
+                <input type="number" id="user-input" placeholder="Nhập giá trị...">
+                <button class="btn btn-primary" onclick="checkAnswer()">XÁC NHẬN</button>
             </div>
             
-            <div>
-                <input type="number" id="user-input" placeholder="Value?">
-                <button class="btn" onclick="checkAnswer()">EXECUTE</button>
-            </div>
-            <p style="margin-top: 20px; color: #555;">Tiến trình: <span id="progress">0</span>/5</p>
-        </div>
-
-        <div class="log-sidebar" id="system-log">
-            <div class="log-entry">> KHỞI TẠO VÙNG NHỚ...</div>
-        </div>
+            <p style="margin-top: 30px; font-weight: 600; color: var(--text-sub);">
+                Tiến độ: <span id="progress" style="color: var(--primary);">0</span> / 5
+            </p>
+        </main>
     </div>
 
     <div id="victory-overlay" style="display: none;">
-        <div class="mission-box">
-            <h1 style="color: var(--bright-green); font-size: 3rem; margin: 0;">MISSION ACCOMPLISHED</h1>
-            <div class="stats-grid">
-                <div>TRUY XUẤT: <span id="final-access" style="color: var(--bright-green)">0</span></div>
-                <div>ĐỘ CHÍNH XÁC: <span id="final-accuracy" style="color: var(--cyan)">0%</span></div>
+        <div class="glass-card">
+            <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Mission Complete! 🚀</h1>
+            <p style="color: var(--text-sub);">Bạn đã nắm vững cách bộ nhớ vận hành.</p>
+            
+            <div style="display: flex; justify-content: center; gap: 15px; margin: 20px 0;">
+                <button class="tab-btn active" onclick="switchLang('js')">JS</button>
+                <button class="tab-btn" onclick="switchLang('cpp')">C++</button>
+                <button class="tab-btn" onclick="switchLang('py')">Python</button>
             </div>
+            <div class="code-box" id="final-code"></div>
 
-            <div style="text-align: left;">
-                <div class="tab-container">
-                    <button class="tab-btn active" onclick="switchLang('cpp')" data-lang="cpp">C++</button>
-                    <button class="tab-btn" onclick="switchLang('java')" data-lang="java">JAVA</button>
-                    <button class="tab-btn" onclick="switchLang('js')" data-lang="js">JS</button>
-                    <button class="tab-btn" onclick="switchLang('python')" data-lang="python">PYTHON</button>
-                </div>
-                <div class="code-box" id="final-code"></div>
-            </div>
-
-            <button class="btn" onclick="location.reload()" style="margin-top: 20px;">RE-RUN PROTOCOL</button>
+            <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 25px;">LÀM LẠI</button>
         </div>
     </div>
 
@@ -165,72 +170,92 @@
         let memoryArray = [];
         let currentTargetIndex = 0;
         let correctCount = 0;
-        let totalAttempts = 0;
+        let audioCtx = null;
         const GOAL = 5;
 
         const codes = {
-            cpp: `int main() {\n    int arr[6] = {12, 45, 78, 23, 56, 89};\n    int val = arr[3]; // Lấy giá trị tại index 3\n    return 0;\n}`,
-            java: `public class Main {\n    public static void main(String[] args) {\n        int[] arr = {12, 45, 78, 23, 56, 89};\n        int val = arr[3];\n    }\n}`,
-            js: `const arr = [12, 45, 78, 23, 56, 89];\nlet val = arr[3]; // Truy xuất index 3`,
-            python: `arr = [12, 45, 78, 23, 56, 89]\nval = arr[3] # Lấy phần tử tại vị trí số 3`
+            cpp: `int arr[6] = {12, 45, 78, 23, 56, 89};\nint val = arr[3]; // Truy xuất ô thứ 3`,
+            js: `const arr = [12, 45, 78, 23, 56, 89];\nlet val = arr[3]; // Lấy giá trị tại index 3`,
+            py: `arr = [12, 45, 78, 23, 56, 89]\nval = arr[3] # Indexing rất nhanh O(1)`
         };
 
+        function resumeAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(isCorrect) {
+            resumeAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(isCorrect ? 800 : 150, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
         function startPractice() {
+            resumeAudio();
             document.getElementById('theory-screen').style.display = 'none';
             document.getElementById('practice-screen').style.display = 'flex';
             initArray();
         }
 
         function initArray() {
-            memoryArray = Array.from({length: 6}, () => Math.floor(Math.random() * 90) + 10);
+            memoryArray = Array.from({length: 6}, () => Math.floor(Math.random() * 89) + 10);
             const container = document.getElementById('array-visual');
-            container.innerHTML = '';
-            memoryArray.forEach((val, i) => {
-                container.innerHTML += `<div class="array-cell" id="cell-${i}"><span class="index-label">idx: ${i}</span>${val}</div>`;
-            });
+            container.innerHTML = memoryArray.map((val, i) => `
+                <div class="array-cell" id="cell-${i}">
+                    <span class="index-label">idx: ${i}</span>
+                    ${val}
+                </div>
+            `).join('');
             currentTargetIndex = Math.floor(Math.random() * 6);
             document.getElementById('target-index').innerText = currentTargetIndex;
-            document.getElementById('progress').innerText = correctCount;
         }
 
         function checkAnswer() {
+            resumeAudio();
             const input = document.getElementById('user-input');
             const val = parseInt(input.value);
             if (isNaN(val)) return;
 
-            totalAttempts++;
             if (val === memoryArray[currentTargetIndex]) {
+                playSound(true);
                 correctCount++;
-                addLog(`SUCCESS: Đã đọc vùng nhớ [${currentTargetIndex}] thành công.`, 'success');
+                addLog(`Dữ liệu tại [${currentTargetIndex}] chính xác!`, 'success');
                 document.getElementById(`cell-${currentTargetIndex}`).classList.add('active');
+                document.getElementById('progress').innerText = correctCount;
+                
                 setTimeout(() => {
                     input.value = '';
                     if (correctCount >= GOAL) showVictory();
                     else initArray();
-                }, 700);
+                }, 800);
             } else {
-                addLog(`ERROR: Truy xuất sai giá trị tại [${currentTargetIndex}].`, 'err');
-                input.style.borderColor = 'red';
-                setTimeout(() => input.style.borderColor = 'var(--matrix-green)', 500);
+                playSound(false);
+                addLog(`Lỗi truy xuất tại [${currentTargetIndex}].`, 'err');
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 400);
             }
         }
 
         function showVictory() {
             document.getElementById('victory-overlay').style.display = 'flex';
-            document.getElementById('final-access').innerText = totalAttempts;
-            document.getElementById('final-accuracy').innerText = ((GOAL / totalAttempts) * 100).toFixed(1) + "%";
-            switchLang('cpp');
+            switchLang('js');
         }
 
         function switchLang(lang) {
             document.getElementById('final-code').innerText = codes[lang];
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === lang));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(lang)));
         }
 
-        function addLog(msg, type = '') {
+        function addLog(msg, type) {
             const log = document.getElementById('system-log');
-            log.innerHTML += `<div class="log-entry log-${type}">> ${msg}</div>`;
-            log.scrollTop = log.scrollHeight;
+            const div = document.createElement('div');
+            div.className = `log-entry log-${type}`;
+            div.innerText = `> ${msg}`;
+            log.prepend(div);
         }
     </script>
 </body>

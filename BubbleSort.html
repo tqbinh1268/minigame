@@ -2,13 +2,12 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Insertion Sort Protocol - Matrix System</title>
+    <title>Bubble Sort Protocol - Matrix System</title>
     <style>
         :root {
             --matrix-green: #008f11; 
             --bright-green: #00FF41;
             --dark-bg: #050a05;
-            --gold: #ffd700; /* Added for consistency with index.html */
             --teal: #20c997;
             --font-main: 'Consolas', 'Courier New', monospace;
             --red: #ef4444;
@@ -20,6 +19,7 @@
             font-family: var(--font-main);
             margin: 0;
             overflow: hidden;
+            transition: transform 0.1s;
         }
 
         /* --- THEORY SCREEN --- */
@@ -28,74 +28,53 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: var(--dark-bg);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
         }
 
         .theory-card {
             border: 1px solid var(--matrix-green);
-            padding: 40px;
-            max-width: 850px;
-            width: 100%;
-            background: rgba(0, 10, 0, 0.95);
-            text-align: center;
+            padding: 40px; max-width: 850px; width: 100%;
+            background: rgba(0, 10, 0, 0.95); text-align: center;
             box-shadow: 0 0 30px rgba(0, 143, 17, 0.3);
         }
 
         .theory-content {
-            color: #ccc;
-            text-align: left;
-            max-height: 65vh;
-            overflow-y: auto;
-            margin: 20px 0;
-            padding-right: 15px;
+            color: #ccc; text-align: left; max-height: 55vh;
+            overflow-y: auto; margin: 20px 0; padding-right: 15px;
         }
 
         .theory-section { margin-bottom: 25px; }
         .theory-title { color: var(--matrix-green); font-weight: bold; display: block; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid #1a3a1a; }
         
         .example-box {
-            background: rgba(0, 20, 0, 0.5);
-            border: 1px dashed #333;
-            padding: 15px;
-            margin: 15px 0;
-            font-size: 0.9rem;
-            color: #a5d6a7;
-            line-height: 1.5;
+            background: rgba(0, 20, 0, 0.5); border: 1px dashed #333;
+            padding: 15px; margin: 15px 0; font-size: 0.9rem; color: #a5d6a7;
         }
 
-        /* --- PRACTICE SCREEN LAYOUT --- */
+        /* --- PRACTICE SCREEN --- */
         #practice-screen { display: none; width: 100vw; height: 100vh; flex-direction: row; }
         .main-stage {
             flex: 7; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            border-right: 1px solid #1a3a1a;
+            align-items: center; justify-content: center; border-right: 1px solid #1a3a1a;
         }
 
         .log-sidebar {
             flex: 3; background: #000; padding: 20px;
-            overflow-y: auto; border-left: 1px solid var(--matrix-green);
-            font-size: 0.85rem;
+            overflow-y: auto; border-left: 1px solid var(--matrix-green); font-size: 0.85rem;
         }
 
         #array-display { display: flex; gap: 15px; margin: 40px 0; }
         .node {
-            width: 65px; height: 65px; border: 1px solid var(--matrix-green);
+            width: 70px; height: 70px; border: 1px solid var(--matrix-green);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; background: rgba(0, 20, 0, 0.5);
+            font-size: 1.5rem; transition: all 0.3s; position: relative;
+            background: rgba(0, 20, 0, 0.3);
         }
-        .node::after { content: '[' attr(data-index) ']'; position: absolute; bottom: -25px; font-size: 0.7rem; color: #444; }
+        .node.comparing { border: 2px solid var(--bright-green); box-shadow: 0 0 15px var(--bright-green); transform: scale(1.1); z-index: 10; }
+        .node.swapping { background: var(--bright-green); color: #000; }
+        .node.sorted { border-color: #222; color: #444; opacity: 0.6; }
 
-        .node.hole { border: 2px dashed #444; background: rgba(32, 201, 151, 0.05); color: rgba(32, 201, 151, 0.3); font-style: italic; }
-        .node.comparing { border: 2px solid var(--bright-green); box-shadow: 0 0 15px var(--bright-green); color: var(--bright-green); }
-        .node.inserted { background-color: var(--bright-green); color: #000; }
-        .node.sorted { border-color: #333; color: #555; }
-
-        .key-display { font-size: 2.8rem; color: var(--teal); font-weight: bold; text-shadow: 0 0 10px var(--teal); }
-
+        /* --- CONTROLS --- */
         .btn {
             background: transparent; color: var(--matrix-green);
             border: 1px solid var(--matrix-green); padding: 12px 25px;
@@ -110,67 +89,81 @@
             background: rgba(0, 0, 0, 0.98); z-index: 2000;
             align-items: center; justify-content: center; padding: 20px;
         }
-        .victory-content { background: #000; border: 1px solid var(--matrix-green); padding: 30px; width: 100%; max-width: 800px; }
-        .tab-btn { background: #111; border: 1px solid #333; color: #666; padding: 8px 16px; cursor: pointer; margin-right: 5px; font-family: var(--font-main); }
-        .tab-btn.active { border-color: var(--bright-green); color: var(--bright-green); }
-        .code-box { background: #0a0a0a; border: 1px solid #333; padding: 15px; margin: 15px 0; color: #a5d6a7; font-size: 0.85rem; white-space: pre; overflow-x: auto; }
+        .victory-content {
+            background: #000; border: 1px solid var(--matrix-green);
+            padding: 30px; width: 100%; max-width: 850px;
+            box-shadow: 0 0 50px rgba(0, 143, 17, 0.2);
+        }
 
+        .tab-container { display: flex; margin-bottom: -1px; }
+        .tab-btn {
+            background: #111; border: 1px solid #333; color: #666;
+            padding: 10px 20px; cursor: pointer; margin-right: 5px; font-family: var(--font-main);
+        }
+        .tab-btn.active { border-color: var(--bright-green); color: var(--bright-green); background: rgba(0, 255, 65, 0.1); }
+
+        .code-box { 
+            background: #0a0a0a; border: 1px solid #333; padding: 20px; 
+            color: #a5d6a7; white-space: pre; overflow-x: auto; font-size: 0.85rem;
+            min-height: 250px;
+        }
+
+        /* --- LOGS & ANIMATIONS --- */
         .log-entry { margin-bottom: 5px; border-bottom: 1px solid #0a1a0a; padding-bottom: 2px; }
         .log-success { color: var(--bright-green); }
-        .log-err { color: var(--red); }
+        .log-err { color: var(--red); font-weight: bold; }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            20% { transform: translate(-3px, 0px); }
+            40% { transform: translate(3px, 2px); }
+            60% { transform: translate(-3px, 1px); }
+            80% { transform: translate(3px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
     </style>
 </head>
 <body>
 
     <div id="theory-screen">
         <div class="theory-card">
-            <h1 style="color: var(--bright-green); margin: 0;">INSERTION SORT PROTOCOL</h1>
-            <p style="color: #666; font-size: 0.9rem;">> LOADING KNOWLEDGE BASE...</p>
+            <h1 style="color: var(--bright-green); margin: 0;">BUBBLE SORT PROTOCOL</h1>
+            <p style="color: #666;">> INITIALIZING BUBBLE_LOGIC_V2...</p>
             
             <div class="theory-content">
                 <div class="theory-section">
                     <span class="theory-title">1. KHÁI NIỆM:</span>
-                    <p>Insertion Sort (Sắp xếp chèn) xây dựng mảng đã sắp xếp từng bước một. Nó lấy một phần tử từ phần chưa sắp xếp và chèn nó vào đúng vị trí trong phần đã sắp xếp, giống như cách bạn xếp các quân bài trên tay.</p>
+                    <p>Bubble Sort (Sắp xếp nổi bọt) là thuật toán so sánh các cặp phần tử liền kề và hoán đổi chúng nếu sai thứ tự. Quá trình này lặp lại cho đến khi phần tử lớn nhất "nổi" về cuối mảng.</p>
                 </div>
 
                 <div class="theory-section">
-                    <span class="theory-title">2. NGUYÊN LÝ HOẠT ĐỘNG:</span>
+                    <span class="theory-title">2. QUY TRÌNH VẬN HÀNH:</span>
                     <ul style="list-style: none; padding-left: 0;">
-                        <li>- <b style="color: var(--bright-green)">Key Selection:</b> Nhấc phần tử ở index <b>i</b> làm giá trị <b>Key</b>.</li>
-                        <li>- <b style="color: var(--bright-green)">Comparison:</b> So sánh Key với các số bên trái (phần đã sắp xếp).</li>
-                        <li>- <b style="color: var(--bright-green)">Shift:</b> Nếu số bên trái lớn hơn Key, dịch chuyển số đó sang phải.</li>
-                        <li>- <b style="color: var(--bright-green)">Insert:</b> Chèn Key vào ô trống cuối cùng sau khi dịch chuyển xong.</li>
+                        <li>- <b style="color: var(--bright-green)">So sánh:</b> Xét cặp tại chỉ số <b>j</b> và <b>j+1</b>.</li>
+                        <li>- <b style="color: var(--bright-green)">Hoán đổi:</b> Nếu <b>arr[j] > arr[j+1]</b>, thực hiện SWAP.</li>
+                        <li>- <b style="color: var(--bright-green)">Thu hẹp:</b> Sau mỗi vòng, phần tử lớn nhất đã nằm đúng vị trí, không cần xét lại.</li>
                     </ul>
                 </div>
 
                 <div class="example-box">
-                    
-                    <strong style="color: var(--bright-green)">VÍ DỤ MINH HỌA (C++): [12, 11, 13, 5]</strong><br><br>
-                    - i=1, Key=11: 12 > 11 → Dịch 12 sang phải. Chèn 11 → <b style="color: white">[11, 12, 13, 5]</b><br>
-                    - i=2, Key=13: 12 < 13 → Giữ nguyên vị trí. Chèn 13 → <b style="color: white">[11, 12, 13, 5]</b><br>
-                    - i=3, Key=5: Dịch 13, 12, 11 sang phải. Chèn 5 → <b style="color: var(--bright-green)">[5, 11, 12, 13]</b>
-                </div>
-
-                <div class="theory-section">
-                    <span class="theory-title">3. ĐẶC ĐIỂM KỸ THUẬT:</span>
-                    <p>- Độ phức tạp: <b>O(n²)</b> (Xấu nhất), <b>O(n)</b> (Tốt nhất khi mảng đã sắp xếp).<br>
-                       - Ưu điểm: Hiệu quả với tập dữ liệu nhỏ, tiêu tốn cực ít bộ nhớ phụ.</p>
+                    <strong style="color: var(--bright-green)">TRẠNG THÁI: [29, 10, 14]</strong><br>
+                    - Lần 1: 29 > 10? ĐÚNG -> Đổi -> [10, 29, 14]<br>
+                    - Lần 2: 29 > 14? ĐÚNG -> Đổi -> [10, 14, 29] (29 đã nổi lên!)
                 </div>
             </div>
 
-            <button class="btn" onclick="startPractice()" style="font-size: 1.2rem; padding: 15px 40px;">BẮT ĐẦU THỰC NGHIỆM</button>
+            <button class="btn" onclick="startPractice()" style="font-size: 1.1rem; padding: 15px 40px;">BẮT ĐẦU GIAO THỨC</button>
         </div>
     </div>
 
     <div id="practice-screen">
         <div class="main-stage">
-            <div style="color: #444; margin-bottom: 10px;">> PROTOCOL: INSERTION_SORT_V1</div>
-            <div id="key-info">KEY: <span id="current-key-value" class="key-display">--</span></div>
+            <div style="color: #444; margin-bottom: 10px;">> PROTOCOL: BUBBLE_SORT_V2.0</div>
             <div id="array-display"></div>
-            <div id="hint-box" style="height: 40px; font-weight: bold; text-align: center;"></div>
+            <div id="hint-box" style="height: 40px; font-weight: bold; margin-bottom: 20px; text-align: center;"></div>
             <div>
-                <button class="btn" onclick="processAnswer(true)">DỊCH CHUYỂN (SHIFT)</button>
-                <button class="btn" onclick="processAnswer(false)">CHÈN VÀO ĐÂY (INSERT)</button>
+                <button class="btn" onclick="handleAction(true)">HOÁN ĐỔI (SWAP)</button>
+                <button class="btn" onclick="handleAction(false)">BỎ QUA (SKIP)</button>
             </div>
         </div>
         <div class="log-sidebar" id="system-log"></div>
@@ -181,7 +174,7 @@
             <h1 style="color: var(--bright-green); text-align: center; margin: 0;">MISSION ACCOMPLISHED</h1>
             <div id="final-stats" style="text-align: center; color: #ccc; margin: 15px 0;"></div>
             
-            <h3 style="color: var(--matrix-green)">> IMPLEMENTATION (Mã nguồn)</h3>
+            <h3 style="color: var(--matrix-green)">> SOURCE_CODE_IMPLEMENTATION</h3>
             <div class="tab-container">
                 <button class="tab-btn active" onclick="switchLang('cpp')">C++</button>
                 <button class="tab-btn" onclick="switchLang('java')">JAVA</button>
@@ -191,34 +184,41 @@
             <div class="code-box" id="code-display"></div>
 
             <div style="text-align: center; margin-top: 25px;">
-                <button class="btn" onclick="location.reload()">RE-RUN PROTOCOL</button>
+                <button class="btn" onclick="location.reload()">RE-BOOT SYSTEM</button>
             </div>
         </div>
     </div>
 
     <script>
-        let array = [], i = 1, j = 0, keyElement = null, totalComparisons = 0, isWaiting = false;
+        let array = [], i = 0, j = 0, totalComparisons = 0, isAnimating = false;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         const codeSnippets = {
-            cpp: `void insertionSort(int arr[], int n) {\n    for (int i = 1; i < n; i++) {\n        int key = arr[i], j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j--;\n        }\n        arr[j + 1] = key;\n    }\n}`,
-            java: `public void insertionSort(int[] arr) {\n    for (int i = 1; i < arr.length; i++) {\n        int key = arr[i], j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j--;\n        }\n        arr[j + 1] = key;\n    }\n}`,
-            js: `function insertionSort(arr) {\n    for (let i = 1; i < arr.length; i++) {\n        let key = arr[i], j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j--;\n        }\n        arr[j + 1] = key;\n    }\n}`,
-            py: `def insertion_sort(arr):\n    for i in range(1, len(arr)):\n        key = arr[i]\n        j = i - 1\n        while j >= 0 and arr[j] > key:\n            arr[j + 1] = arr[j]\n            j -= 1\n        arr[j + 1] = key`
+            cpp: `void bubbleSort(int arr[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        for (int j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j + 1]) {\n                swap(arr[j], arr[j + 1]);\n            }\n        }\n    }\n}`,
+            java: `public void bubbleSort(int[] arr) {\n    int n = arr.length;\n    for (int i = 0; i < n - 1; i++) {\n        for (int j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j + 1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n            }\n        }\n    }\n}`,
+            js: `function bubbleSort(arr) {\n    let n = arr.length;\n    for (let i = 0; i < n - 1; i++) {\n        for (let j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                [arr[j], arr[j+1]] = [arr[j+1], arr[j]];\n            }\n        }\n    }\n}`,
+            py: `def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n - 1):\n        for j in range(n - i - 1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]`
         };
 
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            const now = audioCtx.currentTime;
             osc.connect(gain); gain.connect(audioCtx.destination);
             
-            if (type === 'shift') { osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(500, now + 0.1); gain.gain.setValueAtTime(0.1, now); }
-            else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); gain.gain.setValueAtTime(0.1, now); }
-            else { osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); gain.gain.setValueAtTime(0.1, now); }
+            if (type === 'success') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.2);
+                document.body.style.animation = "shake 0.2s linear";
+                setTimeout(() => document.body.style.animation = "", 200);
+            }
             
-            osc.start(); osc.stop(now + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
         }
 
         function startPractice() {
@@ -229,95 +229,79 @@
 
         function initGame() {
             array = Array.from({length: 5}, () => Math.floor(Math.random() * 89) + 10);
-            i = 1; totalComparisons = 0; isWaiting = false;
-            document.getElementById('system-log').innerHTML = '';
+            i = 0; j = 0; totalComparisons = 0;
             addLog(`HỆ THỐNG: Khởi tạo mảng [${array.join(', ')}]`, 'success');
-            startInsertionPass();
-            switchLang('cpp');
-        }
-
-        function startInsertionPass() {
-            if (i >= array.length) { showVictory(); return; }
-            keyElement = array[i];
-            array[i] = null;
-            j = i - 1;
-            isWaiting = false;
-            addLog(`Vòng lặp i=${i}: Key = ${keyElement}`);
             updateUI();
-            updateHint();
         }
 
-        function processAnswer(userWantsToShift) {
-            if (isWaiting || i >= array.length) return;
-            const shouldShift = (j >= 0 && array[j] > keyElement);
+        function handleAction(userWantsSwap) {
+            if (isAnimating || i >= array.length - 1) return;
 
-            if (userWantsToShift === shouldShift) {
-                totalComparisons++;
-                if (shouldShift) {
-                    playSound('shift');
-                    array[j + 1] = array[j];
-                    array[j] = null;
-                    j--;
-                    addLog(`Dịch chuyển ${array[j+1]} sang phải.`);
+            const shouldSwap = array[j] > array[j + 1];
+            totalComparisons++;
+
+            if (userWantsSwap === shouldSwap) {
+                playSound('success');
+                if (shouldSwap) {
+                    [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                    addLog(`HOÁN ĐỔI: ${array[j+1]} ↔ ${array[j]}`);
+                    animateStep(true);
                 } else {
-                    playSound('insert');
-                    array[j + 1] = keyElement;
-                    addLog(`Chèn Key ${keyElement} vào index ${j+1}.`, 'success');
-                    isWaiting = true;
-                    updateUI(j + 1);
-                    i++;
-                    setTimeout(startInsertionPass, 800);
-                    return;
+                    addLog(`GIỮ NGUYÊN: ${array[j]} ≤ ${array[j+1]}`);
+                    animateStep(false);
                 }
-                updateUI();
-                updateHint();
             } else {
                 playSound('error');
-                addLog(`SAI THAO TÁC tại index ${j}`, 'err');
+                addLog(`SAI THAO TÁC TẠI CẶP (${array[j]}, ${array[j+1]})`, 'err');
             }
         }
 
-        function updateUI(insertedIdx = -1) {
+        function animateStep(isSwap) {
+            isAnimating = true;
+            updateUI(isSwap);
+            setTimeout(() => {
+                isAnimating = false;
+                j++;
+                if (j >= array.length - i - 1) {
+                    addLog(`Phần tử ${array[j]} đã chốt vị trí.`, 'success');
+                    j = 0; i++;
+                }
+                if (i >= array.length - 1) showVictory();
+                else updateUI();
+            }, 600);
+        }
+
+        function updateUI(swapping = false) {
             const container = document.getElementById('array-display');
             container.innerHTML = '';
-            document.getElementById('current-key-value').innerText = keyElement || "--";
             
             array.forEach((val, idx) => {
                 const node = document.createElement('div');
                 node.className = 'node';
-                node.setAttribute('data-index', idx);
-                if (val === null) {
-                    node.classList.add('hole');
-                    node.innerText = keyElement;
-                } else {
-                    node.innerText = val;
-                    if (idx < i) node.classList.add('sorted');
-                }
-                if (idx === j && !isWaiting) node.classList.add('comparing');
-                if (idx === insertedIdx) node.classList.add('inserted');
+                node.innerText = val;
+                if (idx === j || idx === j + 1) node.classList.add('comparing');
+                if (swapping && (idx === j || idx === j + 1)) node.classList.add('swapping');
+                if (idx >= array.length - i) node.classList.add('sorted');
                 container.appendChild(node);
             });
-        }
 
-        function updateHint() {
             const h = document.getElementById('hint-box');
-            if (j >= 0 && array[j] > keyElement) {
-                h.innerText = `SO SÁNH: ${array[j]} > ${keyElement}? ĐÚNG -> Bấm SHIFT`;
-                h.style.color = "var(--teal)";
-            } else {
-                h.innerText = `VỊ TRÍ HỢP LÝ! Bấm INSERT để đưa ${keyElement} vào index ${j+1}`;
-                h.style.color = "var(--bright-green)";
-            }
-        }
-
-        function showVictory() {
-            document.getElementById('victory-overlay').style.display = 'flex';
-            document.getElementById('final-stats').innerText = `Tổng số lần so sánh: ${totalComparisons}`;
+            h.innerText = `PHÂN TÍCH: ${array[j]} > ${array[j+1]} ?`;
+            h.style.color = array[j] > array[j+1] ? "var(--teal)" : "var(--matrix-green)";
         }
 
         function switchLang(lang) {
             document.getElementById('code-display').innerText = codeSnippets[lang];
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(lang)));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase().includes(lang));
+            });
+        }
+
+        function showVictory() {
+            document.getElementById('practice-screen').style.display = 'none';
+            document.getElementById('victory-overlay').style.display = 'flex';
+            document.getElementById('final-stats').innerText = `GIAO THỨC HOÀN TẤT. TỔNG LƯỢT SO SÁNH: ${totalComparisons}`;
+            switchLang('cpp');
         }
 
         function addLog(msg, type) {

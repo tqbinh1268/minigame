@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bubble Sort Protocol - Matrix System</title>
+    <style>
+        :root {
+            --matrix-green: #008f11; 
+            --bright-green: #00FF41;
+            --dark-bg: #050a05;
+            --gold: #ffd700;
+            --teal: #20c997;
+            --font-main: 'Consolas', 'Courier New', monospace;
+            --red: #ef4444;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--matrix-green);
+            font-family: var(--font-main);
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* --- THEORY SCREEN --- */
+        #theory-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark-bg);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+
+        .theory-card {
+            border: 1px solid var(--matrix-green);
+            padding: 40px; max-width: 850px; width: 100%;
+            background: rgba(0, 10, 0, 0.95); text-align: center;
+            box-shadow: 0 0 30px rgba(0, 143, 17, 0.3);
+        }
+
+        .theory-content {
+            color: #ccc; text-align: left; max-height: 60vh;
+            overflow-y: auto; margin: 20px 0; padding-right: 15px;
+        }
+
+        .theory-section { margin-bottom: 25px; }
+        .theory-title { color: var(--matrix-green); font-weight: bold; display: block; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid #1a3a1a; }
+        
+        .example-box {
+            background: rgba(0, 20, 0, 0.5); border: 1px dashed #333;
+            padding: 15px; margin: 15px 0; font-size: 0.9rem; color: #a5d6a7;
+        }
+
+        /* --- PRACTICE SCREEN --- */
+        #practice-screen { display: none; width: 100vw; height: 100vh; flex-direction: row; }
+        .main-stage {
+            flex: 7; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; border-right: 1px solid #1a3a1a;
+        }
+
+        .log-sidebar {
+            flex: 3; background: #000; padding: 20px;
+            overflow-y: auto; border-left: 1px solid var(--matrix-green); font-size: 0.85rem;
+        }
+
+        #array-display { display: flex; gap: 15px; margin: 40px 0; }
+        .node {
+            width: 70px; height: 70px; border: 1px solid var(--matrix-green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; transition: all 0.3s; position: relative;
+        }
+        .node.comparing { border: 2px solid var(--bright-green); box-shadow: 0 0 15px var(--bright-green); transform: scale(1.1); z-index: 10; }
+        .node.swapping { background: var(--bright-green); color: #000; }
+        .node.sorted { border-color: #222; color: #444; opacity: 0.6; }
+
+        .btn {
+            background: transparent; color: var(--matrix-green);
+            border: 1px solid var(--matrix-green); padding: 12px 25px;
+            cursor: pointer; font-family: var(--font-main); margin: 10px;
+            text-transform: uppercase; transition: 0.2s;
+        }
+        .btn:hover { background: var(--matrix-green); color: #000; }
+
+        #victory-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.98); z-index: 2000;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .code-box { background: #0a0a0a; border: 1px solid #333; padding: 15px; color: #a5d6a7; white-space: pre; overflow-x: auto; font-size: 0.8rem; }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #0a1a0a; }
+        .log-success { color: var(--bright-green); }
+        .log-err { color: var(--red); }
+    </style>
+</head>
+<body>
+
+    <div id="theory-screen">
+        <div class="theory-card">
+            <h1 style="color: var(--bright-green); margin: 0;">BUBBLE SORT PROTOCOL</h1>
+            <p style="color: #666;">> INITIALIZING BUBBLE_LOGIC_V1...</p>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <span class="theory-title">1. KHÁI NIỆM:</span>
+                    <p>Sắp xếp nổi bọt hoạt động bằng cách lặp đi lặp lại việc hoán đổi các phần tử liền kề nếu chúng đứng sai thứ tự. Phần tử lớn nhất sẽ "nổi" lên cuối danh sách sau mỗi lượt quét.</p>
+                </div>
+
+                <div class="theory-section">
+                    <span class="theory-title">2. NGUYÊN LÝ:</span>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>- <b style="color: var(--bright-green)">Scan:</b> Duyệt mảng từ trái sang phải.</li>
+                        <li>- <b style="color: var(--bright-green)">Compare:</b> So sánh cặp (j) và (j+1).</li>
+                        <li>- <b style="color: var(--bright-green)">Swap:</b> Nếu arr[j] > arr[j+1], đổi chỗ chúng.</li>
+                        <li>- <b style="color: var(--bright-green)">Repeat:</b> Lặp lại cho đến khi không còn cần hoán đổi.</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <strong style="color: var(--bright-green)">VÍ DỤ: [5, 1, 4]</strong><br>
+                    1. So sánh (5, 1): 5 > 1 -> Đổi chỗ -> [1, 5, 4]<br>
+                    2. So sánh (5, 4): 5 > 4 -> Đổi chỗ -> [1, 4, 5] (Số 5 đã nổi lên cuối!)
+                </div>
+            </div>
+
+            <button class="btn" onclick="startPractice()">BẮT ĐẦU GIAO THỨC</button>
+        </div>
+    </div>
+
+    <div id="practice-screen">
+        <div class="main-stage">
+            <div style="color: #444; margin-bottom: 10px;">> PROTOCOL: BUBBLE_SORT_CORE</div>
+            <div id="array-display"></div>
+            <div id="hint-box" style="height: 40px; font-weight: bold; margin-bottom: 20px;"></div>
+            <div>
+                <button class="btn" onclick="handleAction(true)">HOÁN ĐỔI (SWAP)</button>
+                <button class="btn" onclick="handleAction(false)">BỎ QUA (SKIP)</button>
+            </div>
+        </div>
+        <div class="log-sidebar" id="system-log"></div>
+    </div>
+
+    <div id="victory-overlay">
+        <div class="theory-card">
+            <h1 style="color: var(--bright-green);">MISSION COMPLETE</h1>
+            <div id="final-stats" style="margin-bottom: 20px;"></div>
+            <div class="code-box" id="code-display"></div>
+            <button class="btn" onclick="location.reload()">RE-BOOT SYSTEM</button>
+        </div>
+    </div>
+
+    <script>
+        let array = [], i = 0, j = 0, totalComparisons = 0, isAnimating = false;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        const codeSnippet = `void bubbleSort(int arr[], int n) {\n    for (int i = 0; i < n-1; i++) {\n        for (int j = 0; j < n-i-1; j++) {\n            if (arr[j] > arr[j+1]) {\n                swap(arr[j], arr[j+1]);\n            }\n        }\n    }\n}`;
+
+        function playSound(freq) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function startPractice() {
+            document.getElementById('theory-screen').style.display = 'none';
+            document.getElementById('practice-screen').style.display = 'flex';
+            initGame();
+        }
+
+        function initGame() {
+            array = Array.from({length: 5}, () => Math.floor(Math.random() * 80) + 10);
+            i = 0; j = 0; totalComparisons = 0;
+            addLog(`HỆ THỐNG: Mảng mục tiêu [${array.join(', ')}]`, 'success');
+            updateUI();
+        }
+
+        function handleAction(userWantsSwap) {
+            if (isAnimating || i >= array.length - 1) return;
+
+            const shouldSwap = array[j] > array[j + 1];
+            totalComparisons++;
+
+            if (userWantsSwap === shouldSwap) {
+                if (shouldSwap) {
+                    playSound(400);
+                    [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                    addLog(`HOÁN ĐỔI: ${array[j+1]} ↔ ${array[j]}`);
+                    animateSwap();
+                } else {
+                    playSound(600);
+                    addLog(`GIỮ NGUYÊN: ${array[j]} < ${array[j+1]}`);
+                    nextStep();
+                }
+            } else {
+                setTimeout(() => {
+                playSound(350);
+            }, 120);
+                 playSound(350);
+                addLog(`SAI LOGIC TẠI CẶP (${array[j]}, ${array[j+1]})`, 'err');
+            }
+        }
+
+        function animateSwap() {
+            isAnimating = true;
+            updateUI(true);
+            setTimeout(() => {
+                isAnimating = false;
+                nextStep();
+            }, 600);
+        }
+
+        function nextStep() {
+            j++;
+            if (j >= array.length - i - 1) {
+                addLog(`Phần tử ${array[j]} đã ở vị trí cuối cùng.`, 'success');
+                j = 0;
+                i++;
+            }
+
+            if (i >= array.length - 1) {
+                showVictory();
+            } else {
+                updateUI();
+            }
+        }
+
+        function updateUI(swapping = false) {
+            const container = document.getElementById('array-display');
+            container.innerHTML = '';
+            
+            array.forEach((val, idx) => {
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.innerText = val;
+                
+                if (idx === j || idx === j + 1) node.classList.add('comparing');
+                if (swapping && (idx === j || idx === j + 1)) node.classList.add('swapping');
+                if (idx >= array.length - i) node.classList.add('sorted');
+                
+                container.appendChild(node);
+            });
+
+            const h = document.getElementById('hint-box');
+            h.innerText = `SO SÁNH: ${array[j]} > ${array[j+1]} ?`;
+            h.style.color = array[j] > array[j+1] ? "var(--teal)" : "var(--matrix-green)";
+        }
+
+        function addLog(msg, type) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerText = `> ${msg}`;
+            document.getElementById('system-log').prepend(entry);
+        }
+
+        function showVictory() {
+            document.getElementById('practice-screen').style.display = 'none';
+            document.getElementById('victory-overlay').style.display = 'flex';
+            document.getElementById('final-stats').innerText = `GIAO THỨC HOÀN TẤT. TỔNG SO SÁNH: ${totalComparisons}`;
+            document.getElementById('code-display').innerText = codeSnippet;
+        }
+    </script>
+</body>
+</html>

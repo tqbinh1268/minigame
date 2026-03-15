@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array Mastery - Modern Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            margin: 0; font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #fce7f3 100%);
+            color: var(--text-main); display: flex; height: 100vh; overflow: hidden;
+        }
+
+        /* --- SCREENS --- */
+        #theory-screen, #victory-overlay {
+            position: fixed; inset: 0; background: inherit; z-index: 200;
+            display: flex; justify-content: center; align-items: center; padding: 20px;
+        }
+
+        #practice-screen { display: none; width: 100%; height: 100%; }
+
+        .glass-card {
+            background: var(--card-bg); backdrop-filter: blur(15px);
+            padding: 40px; border-radius: 32px; max-width: 800px; width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .sidebar {
+            width: 320px; background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px); border-right: 1px solid rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; padding: 24px;
+        }
+
+        .main-stage {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px;
+        }
+
+        /* --- ARRAY VISUAL --- */
+        .array-container {
+            display: flex; gap: 15px; margin: 50px 0; height: 120px;
+            align-items: center; justify-content: center;
+        }
+
+        .array-cell {
+            width: 80px; height: 80px; background: white;
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: 800; color: var(--primary);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.15);
+            position: relative; animation: popIn 0.4s ease-out;
+        }
+
+        .index-badge {
+            position: absolute; top: -12px; background: var(--secondary);
+            color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
+        }
+
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* --- UI ELEMENTS --- */
+        .btn {
+            padding: 16px 32px; border-radius: 16px; border: none;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+        
+        .btn-secondary { background: white; color: var(--text-main); border: 1px solid #e2e8f0; }
+        .btn-secondary:hover { background: #f8fafc; transform: translateY(-3px); }
+
+        .code-box {
+            background: #1e293b; color: #f8fafc; padding: 20px;
+            border-radius: 16px; font-family: monospace; text-align: left;
+            margin: 20px 0; font-size: 0.9rem; line-height: 1.5;
+        }
+
+        .tab-btn {
+            background: transparent; border: none; padding: 8px 16px;
+            cursor: pointer; font-weight: 600; color: var(--text-sub);
+        }
+        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+    </style>
+</head>
+<body>
+
+    <div id="theory-screen">
+        <div class="glass-card">
+            <h1 style="color: var(--primary); margin-top:0;">ARRAY MUTATION</h1>
+            <p style="color: var(--text-sub);">Khám phá cách thức bộ nhớ thay đổi khi thao tác với Mảng.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 30px 0; text-align: left;">
+                <div style="background: #eef2ff; padding: 15px; border-radius: 16px;">
+                    <strong style="color: var(--primary);">PUSH(val)</strong>
+                    <p style="font-size: 0.85rem; margin: 5px 0;">Thêm vào cuối. <br>Tốc độ: Siêu nhanh (O(1))</p>
+                </div>
+                <div style="background: #fdf2f8; padding: 15px; border-radius: 16px;">
+                    <strong style="color: var(--secondary);">POP()</strong>
+                    <p style="font-size: 0.85rem; margin: 5px 0;">Xóa phần tử cuối. <br>Tốc độ: Siêu nhanh (O(1))</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%;" onclick="startApp()">BẮT ĐẦU HUẤN LUYỆN</button>
+        </div>
+    </div>
+
+    <div id="practice-screen">
+        <aside class="sidebar">
+            <h3 style="font-size: 0.9rem; color: var(--text-sub); letter-spacing: 1px;">ACTION LOG</h3>
+            <div id="system-log" style="flex:1; overflow-y:auto; font-size: 0.85rem;"></div>
+        </aside>
+
+        <main class="main-stage" id="main-stage">
+            <div style="background: white; padding: 8px 20px; border-radius: 20px; font-weight: 700; color: var(--primary); margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03);">
+                MISSION: <span id="mission-text">---</span>
+            </div>
+
+            <div class="array-container" id="array-visual"></div>
+
+            <div style="display: flex; gap: 15px;">
+                <button class="btn btn-primary" onclick="handleAction('push')">PUSH(val)</button>
+                <button class="btn btn-secondary" onclick="handleAction('pop')">POP()</button>
+            </div>
+            
+            <p style="margin-top: 30px; color: var(--text-sub); font-size: 0.9rem;">
+                Tiến độ: <span id="progress-text" style="color: var(--secondary); font-weight: 700;">0/4</span>
+            </p>
+        </main>
+    </div>
+
+    <div id="victory-overlay" style="display: none;">
+        <div class="glass-card" style="text-align: center;">
+            <h1 style="font-size: 2.5rem; margin: 0;">Complete! 🎉</h1>
+            <p style="color: var(--text-sub);">Mảng đã được biến đổi thành công.</p>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="tab-btn active" onclick="switchLang('js')">JavaScript</button>
+                <button class="tab-btn" onclick="switchLang('cpp')">C++</button>
+                <button class="tab-btn" onclick="switchLang('py')">Python</button>
+            </div>
+            <div class="code-box" id="final-code"></div>
+
+            <button class="btn btn-primary" onclick="location.reload()">LÀM LẠI</button>
+        </div>
+    </div>
+
+    <script>
+        let arr = [10, 20, 30];
+        let step = 0;
+        let audioCtx = null;
+
+        const missions = [
+            { type: 'push', val: 99, label: 'Thêm 99 vào cuối mảng' },
+            { type: 'pop', val: null, label: 'Xóa bỏ phần tử cuối cùng' },
+            { type: 'push', val: 55, label: 'Thêm 55 vào cuối mảng' },
+            { type: 'pop', val: null, label: 'Xóa bỏ phần tử cuối cùng' }
+        ];
+
+        const codes = {
+            js: `arr.push(99); // Thêm\narr.pop();    // Xóa`,
+            cpp: `v.push_back(99);\nv.pop_back();`,
+            py: `arr.append(99)\narr.pop()`
+        };
+
+        function resumeAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(isCorrect) {
+            resumeAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(isCorrect ? 600 : 200, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function startApp() {
+            resumeAudio();
+            document.getElementById('theory-screen').style.display = 'none';
+            document.getElementById('practice-screen').style.display = 'flex';
+            renderArray();
+            updateMission();
+        }
+
+        function renderArray() {
+            const container = document.getElementById('array-visual');
+            container.innerHTML = arr.map((v, i) => `
+                <div class="array-cell">
+                    <span class="index-badge">${i}</span>
+                    ${v}
+                </div>
+            `).join('');
+        }
+
+        function updateMission() {
+            if (step >= missions.length) {
+                document.getElementById('victory-overlay').style.display = 'flex';
+                switchLang('js');
+                return;
+            }
+            document.getElementById('mission-text').innerText = missions[step].label;
+            document.getElementById('progress-text').innerText = `${step}/4`;
+        }
+
+        function handleAction(actionType) {
+            resumeAudio();
+            const currentMission = missions[step];
+            if (actionType === currentMission.type) {
+                playSound(true);
+                if (actionType === 'push') {
+                    arr.push(currentMission.val);
+                    addLog(`Push ${currentMission.val} thành công!`, 'success');
+                } else {
+                    const removed = arr.pop();
+                    addLog(`Pop ${removed} thành công!`, 'success');
+                }
+                step++;
+                renderArray();
+                updateMission();
+            } else {
+                playSound(false);
+                addLog(`Sai thao tác! Cần ${currentMission.type.toUpperCase()}`, 'err');
+                document.getElementById('main-stage').classList.add('shake');
+                setTimeout(() => document.getElementById('main-stage').classList.remove('shake'), 400);
+            }
+        }
+
+        function addLog(msg, type) {
+            const log = document.getElementById('system-log');
+            const item = document.createElement('div');
+            item.style.padding = '10px';
+            item.style.marginBottom = '5px';
+            item.style.borderRadius = '10px';
+            item.style.background = type === 'success' ? '#f0fdf4' : '#fef2f2';
+            item.style.color = type === 'success' ? '#16a34a' : '#dc2626';
+            item.innerText = `• ${msg}`;
+            log.prepend(item);
+        }
+
+        function switchLang(lang) {
+            document.getElementById('final-code').innerText = codes[lang];
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.toggle('active', b.innerText.toLowerCase().includes(lang));
+            });
+        }
+    </script>
+</body>
+</html>
